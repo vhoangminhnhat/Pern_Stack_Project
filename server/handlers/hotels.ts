@@ -1,9 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import { pool } from "../db";
 import {
+  CreateHotelRequestModel,
+  DetailHotelRequestModel,
   HotelListRequestModel,
   HotelListResponseModel,
 } from "../dtos/HotelList";
+import { generateId } from "../utils/heplers";
+import { BaseApiResponseModel } from "../dtos/BaseApiResponseModel";
 
 export async function getHotels(
   req: Request<HotelListRequestModel>,
@@ -28,19 +32,76 @@ export async function getHotels(
       data: {
         data: result,
       },
-      message: "Get restaurant list successfully",
+      message: "Get hotel list successfully",
     });
   } catch (error) {
     console.log(error);
+    res.status(400).json({
+      message: "Get hotel list failed",
+    });
   }
 }
 
-export function getHotelDetails(req: Request, res: Response) {
+export async function getHotelDetails(
+  req: Request<{}, {}, {}, DetailHotelRequestModel>,
+  res: Response
+) {
+  try {
+    const { hotelId } = req.query;
+    const data = await pool.query(
+      "SELECT * from hotel_list where hotelId = $1",
+      [hotelId]
+    );
+    res.status(200).json({
+      data: {
+        data: data.rows[0],
+      },
+      message: "Get hotel detail successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({
+      message: "Get hotel detail info failed",
+    });
+  }
   console.log(req.params);
 }
 
-export function createHotels(req: Request, res: Response) {
-  console.log(req.body);
+export async function createHotels(
+  req: Request<{}, {}, CreateHotelRequestModel, {}>,
+  res: Response<BaseApiResponseModel<HotelListResponseModel>>
+) {
+  try {
+    let { address, code, description, name } = req.body;
+    let hotelId = generateId(10);
+    if (!code || code === undefined) {
+      res.status(400).json({
+        data: {},
+        error: {
+          code: 400,
+          message: "Code is required",
+        },
+        message: "Create hotel failed",
+      });
+    } else {
+      const data = await pool.query(
+        "INSERT INTO hotel_list (hotelId, name, code, address, description) values ($1, $2, $3, $4, $5)",
+        [hotelId, name, code, address, description]
+      );
+      res.status(200).json({
+        data: {
+          hotelId,
+          name,
+          code,
+          address,
+          description
+        },
+        message: "Create hotel successfully"
+      })
+    }
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 export function updateHotels(req: Request, res: Response) {

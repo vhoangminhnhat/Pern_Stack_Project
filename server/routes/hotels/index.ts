@@ -7,7 +7,7 @@ const hotelRouter = Router();
 hotelRouter.get("/list", getHotels);
 
 //Get hotel details
-hotelRouter.get("details/:hotelId", getHotelDetails);
+hotelRouter.get("/details/:hotelId", getHotelDetails);
 
 //Create hotels
 hotelRouter.post("/create-hotels", createHotels);
