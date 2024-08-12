@@ -77,7 +77,7 @@ export async function Register(
   next: NextFunction
 ) {
   try {
-    const { email, password, phone, roles, userName } = req.body;
+    const { email, password, phone, userName } = req.body;
     const data = await pool.query("SELECT * from users WHERE phone = $1", [
       phone,
     ]);
