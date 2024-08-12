@@ -16,4 +16,8 @@ export class SignUpRequestModel {
     email?: string;
     phone?: string;
     roles?: string;
+};
+
+export class SignUpResponseModel {
+    user?: UsersResponseModel
 }
