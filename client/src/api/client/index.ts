@@ -84,4 +84,6 @@ class AxiosClient implements ApiConfigModel {
     let response = await api.put(path, data, config);
     return ModelConverter.decode(response, BaseApiResponseModel<T>);
   }
-}
+};
+
+export default new AxiosClient;
