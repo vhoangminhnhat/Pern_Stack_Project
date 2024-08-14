@@ -2,11 +2,10 @@ import { Button, Col, ConfigProvider, Drawer, Layout, Row } from "antd";
 import { Content } from "antd/es/layout/layout";
 import Sider from "antd/es/layout/Sider";
 import { Routers } from "api/repositories/routes/Routes";
-import { SidebarMenuConfigModel } from "api/repositories/sidebar/model/SidebarConfigModel";
-import SidebarRepository from "api/repositories/sidebar/SidebarRepository";
+import { AppContextConfig } from "global/context/AppContext";
 import { colorFormat } from "global/GlobalStyles";
 import Sidebar from "layout/sidebar/Sidebar";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { IoMenu } from "react-icons/io5";
 import { useLocation } from "react-router-dom";
 
@@ -28,24 +27,9 @@ const getMenuItem = (
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
   const [visible, setVisible] = useState<boolean>(false);
-  const [config, setConfig] = useState<SidebarMenuConfigModel>();
   const { pathname } = useLocation();
   const page = pathname.split("/")[1];
-
-  const getAppConfig = async () => {
-    try {
-      let appConfig = await SidebarRepository.getSidebarMenu();
-      if (appConfig) {
-        setConfig(appConfig.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getAppConfig();
-  }, []);
+  const { isAuthen, config } = AppContextConfig();
 
   const sideNav = useMemo(() => {
     let sideNav = config.menu.map((menu) => {

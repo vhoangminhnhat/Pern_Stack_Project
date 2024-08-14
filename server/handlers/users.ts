@@ -65,7 +65,7 @@ export async function CreateUser(
 ) {
   try {
     const { email, name, phone, roles, address, description } = req.body;
-    const userId = `id${generateId(7)}${phone}`;
+    const userId = `id-${generateId(7)}${phone}`;
     if (!email && phone) {
       return res.status(400).json({
         error: {
@@ -121,6 +121,57 @@ export async function CreateUser(
     console.log(error);
     return res.status(400).json({
       message: "Error encountered",
+    });
+  }
+}
+
+export async function UpdateUser(
+  req: Request<{}, {}, UsersResponseModel, {}>,
+  res: Response<BaseApiResponseModel<UsersResponseModel>>
+) {
+  try {
+    const { userId, name, email, phone, address, description } = req.body;
+    if (!userId || userId === undefined) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: "User Id is required in update action",
+        },
+        message: "Update user failed",
+      });
+    }
+    if (userId) {
+      const checkData = await pool.query(
+        "SELECT * FROM users WHERE userId = $1",
+        [userId]
+      );
+      if (isEmpty(checkData.rows)) {
+        return res.status(400).json({
+          error: {
+            code: 400,
+            message: "User Id is not match with any existed users",
+          },
+          message: "Update user failed",
+        });
+      } else {
+        const data = await pool.query(
+          "INSERT INTO users (userId, email, phone, name, address, description) values ($1, $2, $3, $4, $5, $6)",
+          [userId, email, phone, name, address, description]
+        );
+        return res.status(200).json({
+          data: data.rows[0],
+          message: "Update user successfully",
+        });
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({
+      error: {
+        code: 400,
+        message: "Error encountered",
+      },
+      message: "Update user failed",
     });
   }
 }
