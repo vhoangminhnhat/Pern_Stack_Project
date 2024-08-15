@@ -14,6 +14,19 @@ export const VnLocalizedStrings = {
     Confirm: "Xác nhận",
     Cancel: "Quay lại",
     Hello: "Xin chào",
-    All: "Tất cả"
+    All: "Tất cả",
+    Actions: "Hành động",
+    Detail: "Chi tiết",
+    Create: "Tạo mới",
+    Delete: "Xóa"
+  },
+  HotelManagement: {
+    Columns: {
+      Name: "Tên khách sạn",
+      Code: "Mã khách sạn",
+      Address: "Địa chỉ",
+      Description: "Mô tả",
+      City: "Thành phố"
+    }
   }
 };

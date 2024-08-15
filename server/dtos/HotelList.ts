@@ -1,12 +1,14 @@
 export class HotelListRequestModel {
     name?: string;
     code?: string;
+    city?: string
 };
 
 export class HotelListResponseModel {
     id?: string;
     name?: string;
     code?: string;
+    city?: string;
     address?: string;
     description?: string
 };

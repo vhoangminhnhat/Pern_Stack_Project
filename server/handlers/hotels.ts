@@ -12,33 +12,45 @@ import { isEmpty } from "lodash";
 
 export async function getHotels(
   req: Request<HotelListRequestModel>,
-  res: Response,
+  res: Response<BaseApiResponseModel<HotelListResponseModel[]>>,
   next: NextFunction
 ) {
   try {
-    const { name } = req.params;
+    const { name, city } = req.params;
 
     const data = await pool.query<HotelListResponseModel>(
       "SELECT * from hotel_list"
     );
-
-    let result = [];
-    if (!name) {
-      result = data?.rows?.filter((item) => item?.name === name);
-    } else {
-      result = data?.rows;
+    let result: HotelListResponseModel[] = [];
+    if (!name && !city) {
+      return res.status(200).json({
+        data: data.rows,
+        message: "Get hotel list successfully",
+      });
     }
-
-    res.status(200).json({
-      data: {
-        data: result,
-      },
+    if (name && city) {
+      result = data.rows.filter(
+        (item) => item.name === name && item.city === city
+      );
+    }
+    if (name && !city) {
+      result = data.rows.filter((item) => item.name === name);
+    }
+    if (!name && city) {
+      result = data.rows.filter((item) => item.city === city);
+    }
+    return res.status(200).json({
+      data: result,
       message: "Get hotel list successfully",
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({
-      message: "Get hotel list failed",
+    res.status(500).json({
+      error: {
+        code: 500,
+        message: "Internal server error",
+      },
+      message: "Create hotel failed",
     });
   }
 }
@@ -50,7 +62,7 @@ export async function getHotelDetails(
   try {
     const { hotelId } = req.query;
     const data = await pool.query(
-      "SELECT * from hotel_list where hotelId = $1",
+      "SELECT * FROM hotel_list WHERE id = $1",
       [hotelId]
     );
     res.status(200).json({
