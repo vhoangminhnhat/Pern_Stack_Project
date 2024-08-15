@@ -4,7 +4,7 @@ export class HotelListRequestModel {
 };
 
 export class HotelListResponseModel {
-    hotelId?: string;
+    id?: string;
     name?: string;
     code?: string;
     address?: string;

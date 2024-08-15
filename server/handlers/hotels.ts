@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { pool } from "../db";
+import { BaseApiResponseModel } from "../dtos/BaseApiResponseModel";
 import {
   CreateHotelRequestModel,
   DetailHotelRequestModel,
@@ -7,7 +8,7 @@ import {
   HotelListResponseModel,
 } from "../dtos/HotelList";
 import { generateId } from "../utils/heplers";
-import { BaseApiResponseModel } from "../dtos/BaseApiResponseModel";
+import { isEmpty } from "lodash";
 
 export async function getHotels(
   req: Request<HotelListRequestModel>,
@@ -72,10 +73,11 @@ export async function createHotels(
   res: Response<BaseApiResponseModel<HotelListResponseModel>>
 ) {
   try {
-    let { address, code, description, name } = req.body;
-    let hotelId = generateId(10);
-    if (!code || code === undefined) {
-      res.status(400).json({
+    const { address, code, description, name } = req.body;
+    let hotelId = `${generateId(15)}${code}`;
+
+    if (!code) {
+      return res.status(400).json({
         data: {},
         error: {
           code: 400,
@@ -83,24 +85,46 @@ export async function createHotels(
         },
         message: "Create hotel failed",
       });
-    } else {
-      const data = await pool.query(
-        "INSERT INTO hotel_list (hotelId, name, code, address, description) values ($1, $2, $3, $4, $5)",
-        [hotelId, name, code, address, description]
+    }
+    if (code) {
+      const checkCode = await pool.query(
+        "SELECT * FROM hotel_list WHERE code = $1"
       );
-      res.status(200).json({
-        data: {
-          hotelId,
-          name,
-          code,
-          address,
-          description
-        },
-        message: "Create hotel successfully"
-      })
+      if (!isEmpty(checkCode.rows)) {
+        return res.status(400).json({
+          error: {
+            code: 400,
+            message: "This code is existed",
+          },
+          message: "Create hotel failed",
+        });
+      } else {
+        await pool.query(
+          "INSERT INTO hotel_list (id, name, code, address, description) VALUES ($1, $2, $3, $4, $5)",
+          [hotelId, name, code, address, description]
+        );
+        return res.status(200).json({
+          data: {
+            id: hotelId,
+            name,
+            code,
+            address,
+            description,
+          },
+          message: "Create hotel successfully",
+        });
+      }
     }
   } catch (error) {
-    console.log(error)
+    console.error(error);
+    res.status(500).json({
+      data: {},
+      error: {
+        code: 500,
+        message: "Internal server error",
+      },
+      message: "Create hotel failed",
+    });
   }
 }
 
