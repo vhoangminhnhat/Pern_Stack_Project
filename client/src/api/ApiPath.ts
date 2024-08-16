@@ -1,6 +1,7 @@
 export const AuthenPath = {
   LOGIN: getV1Path("authentications/login"),
   REGISTER: getV1Path("authentications/register"),
+  CITY_LIST: getV1Path("city/list")
 };
 
 export const HotelPath = {

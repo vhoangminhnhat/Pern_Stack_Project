@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { strings } from "utils/localizedStrings";
 import { hotelManagementConstants } from "../constants/HotelManagementConstants";
 import { MdDeleteOutline, MdModeEditOutline } from "react-icons/md";
+import { CityResponseModel } from "api/repositories/city/model/CityResponseModel";
+import { defaultCityRepository } from "api/repositories/city/CityRepository";
 
 const HotelManagementViewModel = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -14,6 +16,7 @@ const HotelManagementViewModel = () => {
   const [modal, setModal] = useState<boolean>(false);
   const [detailInfo, setDetailInfo] = useState<HotelsResponseModel>({});
   const [list, setList] = useState<HotelsResponseModel[]>([]);
+  const [cityList, setCityList] = useState<CityResponseModel[]>([])
   const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [total, setTotal] = useState<number>(0);
@@ -34,6 +37,17 @@ const HotelManagementViewModel = () => {
       setLoading(false);
     }
   };
+
+  const fetchCityList = async () => {
+    try {
+      const res = await defaultCityRepository.getList();
+      if(res) {
+        setCityList(res?.data);
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const fetchDetail = async (id: string) => {
     try {
@@ -91,6 +105,7 @@ const HotelManagementViewModel = () => {
 
   useEffect(() => {
     fetchList();
+    fetchCityList()
   }, []);
 
   return {
@@ -105,6 +120,7 @@ const HotelManagementViewModel = () => {
     actionForm,
     mainCoumns,
     modal,
+    cityList,
     setModal,
     handleTableChange,
     handleSearch,

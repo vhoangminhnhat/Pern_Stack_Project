@@ -16,30 +16,41 @@ exports.updateHotels = updateHotels;
 exports.deleteHotels = deleteHotels;
 const db_1 = require("../db");
 const heplers_1 = require("../utils/heplers");
+const lodash_1 = require("lodash");
 function getHotels(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
         try {
-            const { name } = req.params;
+            const { name, city } = req.params;
             const data = yield db_1.pool.query("SELECT * from hotel_list");
             let result = [];
-            if (!name) {
-                result = (_a = data === null || data === void 0 ? void 0 : data.rows) === null || _a === void 0 ? void 0 : _a.filter((item) => (item === null || item === void 0 ? void 0 : item.name) === name);
+            if (!name && !city) {
+                return res.status(200).json({
+                    data: data.rows,
+                    message: "Get hotel list successfully",
+                });
             }
-            else {
-                result = data === null || data === void 0 ? void 0 : data.rows;
+            if (name && city) {
+                result = data.rows.filter((item) => item.name === name && item.city === city);
             }
-            res.status(200).json({
-                data: {
-                    data: result,
-                },
+            if (name && !city) {
+                result = data.rows.filter((item) => item.name === name);
+            }
+            if (!name && city) {
+                result = data.rows.filter((item) => item.city === city);
+            }
+            return res.status(200).json({
+                data: result,
                 message: "Get hotel list successfully",
             });
         }
         catch (error) {
             console.log(error);
-            res.status(400).json({
-                message: "Get hotel list failed",
+            res.status(500).json({
+                error: {
+                    code: 500,
+                    message: "Internal server error",
+                },
+                message: "Create hotel failed",
             });
         }
     });
@@ -48,7 +59,7 @@ function getHotelDetails(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { hotelId } = req.query;
-            const data = yield db_1.pool.query("SELECT * from hotel_list where hotelId = $1", [hotelId]);
+            const data = yield db_1.pool.query("SELECT * FROM hotel_list WHERE id = $1", [hotelId]);
             res.status(200).json({
                 data: {
                     data: data.rows[0],
@@ -62,14 +73,13 @@ function getHotelDetails(req, res) {
                 message: "Get hotel detail info failed",
             });
         }
-        console.log(req.params);
     });
 }
 function createHotels(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const { address, code, description, name } = req.body;
-            let hotelId = `${(0, heplers_1.generateId)(10)}${code}`;
+            let hotelId = `${(0, heplers_1.generateId)(15)}${code}`;
             if (!code) {
                 return res.status(400).json({
                     data: {},
@@ -80,17 +90,31 @@ function createHotels(req, res) {
                     message: "Create hotel failed",
                 });
             }
-            yield db_1.pool.query("INSERT INTO hotel_list (id, name, code, address, description) VALUES ($1, $2, $3, $4, $5)", [hotelId, name, code, address, description]);
-            res.status(200).json({
-                data: {
-                    id: hotelId,
-                    name,
-                    code,
-                    address,
-                    description,
-                },
-                message: "Create hotel successfully",
-            });
+            if (code) {
+                const checkCode = yield db_1.pool.query("SELECT * FROM hotel_list WHERE code = $1");
+                if (!(0, lodash_1.isEmpty)(checkCode.rows)) {
+                    return res.status(400).json({
+                        error: {
+                            code: 400,
+                            message: "This code is existed",
+                        },
+                        message: "Create hotel failed",
+                    });
+                }
+                else {
+                    yield db_1.pool.query("INSERT INTO hotel_list (id, name, code, address, description) VALUES ($1, $2, $3, $4, $5)", [hotelId, name, code, address, description]);
+                    return res.status(200).json({
+                        data: {
+                            id: hotelId,
+                            name,
+                            code,
+                            address,
+                            description,
+                        },
+                        message: "Create hotel successfully",
+                    });
+                }
+            }
         }
         catch (error) {
             console.error(error);
