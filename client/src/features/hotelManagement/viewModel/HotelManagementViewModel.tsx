@@ -6,7 +6,7 @@ import { HotelsRequestModel } from "api/repositories/hotels/model/HotelsRequestM
 import { useEffect, useState } from "react";
 import { strings } from "utils/localizedStrings";
 import { hotelManagementConstants } from "../constants/HotelManagementConstants";
-import { MdModeEditOutline } from "react-icons/md";
+import { MdDeleteOutline, MdModeEditOutline } from "react-icons/md";
 
 const HotelManagementViewModel = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -75,6 +75,9 @@ const HotelManagementViewModel = () => {
             onClick={async () => await fetchDetail(record.id)}
           >
             {strings.GlobalLabels.Detail}
+          </Button>
+          <Button ghost icon={<MdDeleteOutline />}>
+            {strings.GlobalLabels.Delete}
           </Button>
         </>
       ),

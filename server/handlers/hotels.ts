@@ -77,7 +77,6 @@ export async function getHotelDetails(
       message: "Get hotel detail info failed",
     });
   }
-  console.log(req.params);
 }
 
 export async function createHotels(

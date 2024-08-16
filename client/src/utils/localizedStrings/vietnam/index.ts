@@ -8,7 +8,9 @@ export const VnLocalizedStrings = {
     Management: "Quản lý"
   },
   GlobalMessage: {
-    LogoutConfirmed: "Xác nhận đăng xuất ?"
+    LogoutConfirmed: "Xác nhận đăng xuất ?",
+    Name: "Vui lòng nhập tên",
+    City: "Vui lòng chọn thành phố"
   },
   GlobalLabels: {
     Confirm: "Xác nhận",
@@ -21,12 +23,18 @@ export const VnLocalizedStrings = {
     Delete: "Xóa"
   },
   HotelManagement: {
+    Title: "Quản lý khách sạn",
     Columns: {
       Name: "Tên khách sạn",
       Code: "Mã khách sạn",
       Address: "Địa chỉ",
       Description: "Mô tả",
       City: "Thành phố"
+    },
+    City: {
+      HCM: "Thành phố Hồ Chí Minh",
+      HN: "Hà Nội",
+      DN: "Đà Nẵng"
     }
   }
 };
