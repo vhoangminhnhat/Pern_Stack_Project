@@ -1,14 +1,14 @@
 import { Button, Form } from "antd";
+import { defaultCityRepository } from "api/repositories/city/CityRepository";
+import { CityResponseModel } from "api/repositories/city/model/CityResponseModel";
 import { DefaultPagingModel } from "api/repositories/defaultPagingModel/DefaultPagingModel";
 import { defaultHotelsRepository } from "api/repositories/hotels/HotelsRepository";
 import { HotelsResponseModel } from "api/repositories/hotels/model/HotelResponseModel";
 import { HotelsRequestModel } from "api/repositories/hotels/model/HotelsRequestModel";
 import { useEffect, useState } from "react";
+import { MdDeleteOutline, MdModeEditOutline } from "react-icons/md";
 import { strings } from "utils/localizedStrings";
 import { hotelManagementConstants } from "../constants/HotelManagementConstants";
-import { MdDeleteOutline, MdModeEditOutline } from "react-icons/md";
-import { CityResponseModel } from "api/repositories/city/model/CityResponseModel";
-import { defaultCityRepository } from "api/repositories/city/CityRepository";
 
 const HotelManagementViewModel = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -16,7 +16,7 @@ const HotelManagementViewModel = () => {
   const [modal, setModal] = useState<boolean>(false);
   const [detailInfo, setDetailInfo] = useState<HotelsResponseModel>({});
   const [list, setList] = useState<HotelsResponseModel[]>([]);
-  const [cityList, setCityList] = useState<CityResponseModel[]>([])
+  const [cityList, setCityList] = useState<CityResponseModel[]>([]);
   const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [total, setTotal] = useState<number>(0);
@@ -41,13 +41,13 @@ const HotelManagementViewModel = () => {
   const fetchCityList = async () => {
     try {
       const res = await defaultCityRepository.getList();
-      if(res) {
+      if (res) {
         setCityList(res?.data);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const fetchDetail = async (id: string) => {
     try {
@@ -98,14 +98,14 @@ const HotelManagementViewModel = () => {
     },
   ];
 
-  const handleTableChange = async (pagination: DefaultPagingModel | any) => {
+  const handleTableChange = async (pagination?: DefaultPagingModel | any) => {
     setPage(pagination?.current! - 1);
     setPageSize(pagination?.pageSize!);
   };
 
   useEffect(() => {
     fetchList();
-    fetchCityList()
+    fetchCityList();
   }, []);
 
   return {
@@ -121,6 +121,9 @@ const HotelManagementViewModel = () => {
     mainCoumns,
     modal,
     cityList,
+    fetchList,
+    setPage,
+    setPageSize,
     setModal,
     handleTableChange,
     handleSearch,

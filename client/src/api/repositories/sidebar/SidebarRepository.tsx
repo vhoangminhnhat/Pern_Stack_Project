@@ -33,15 +33,15 @@ export class SidebarRepository implements IConfigRepository {
             new MenuConfigModel(
               strings.Sidebar.Hotel,
               "/management/hotels",
-              "hotels",
+              "HotelsFeature",
               <FaHotel className="text-xl" />
             ),
-            new MenuConfigModel(
-              strings.Sidebar.Employee,
-              "/management/employee",
-              "employee",
-              <IoPersonAddOutline className="text-xl" />
-            ),
+            // new MenuConfigModel(
+            //   strings.Sidebar.Employee,
+            //   "/management/employee",
+            //   "employee",
+            //   <IoPersonAddOutline className="text-xl" />
+            // ),
           ]
         ),
         new MenuConfigModel(

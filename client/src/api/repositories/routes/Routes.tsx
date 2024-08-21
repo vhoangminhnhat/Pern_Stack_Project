@@ -1,5 +1,7 @@
+import { strings } from "utils/localizedStrings";
 import { MenuConfigModel } from "../sidebar/model/SidebarConfigModel";
 import { TbLogout } from "react-icons/tb";
+import { FaHotel } from "react-icons/fa6";
 
 export class Routers {
   constructor(
@@ -12,6 +14,10 @@ export class Routers {
 }
 
 export const HOST_MENUS: MenuConfigModel[] = [
-  new MenuConfigModel("Đăng nhập", "sign-in", "SignInFeature", <TbLogout />),
-  new MenuConfigModel("Đăng ký", "sign-up", "SignUpFeature", <TbLogout />),
+  new MenuConfigModel(
+    strings.Sidebar.Hotel,
+    "/management/hotels",
+    "HotelsFeature",
+    <FaHotel className="text-xl" />
+  ),
 ];

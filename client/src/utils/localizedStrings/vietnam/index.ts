@@ -20,10 +20,14 @@ export const VnLocalizedStrings = {
     Actions: "Hành động",
     Detail: "Chi tiết",
     Create: "Tạo mới",
-    Delete: "Xóa"
+    Delete: "Xóa",
+    Search: "Tìm kiếm",
+    Redo: "Làm mới bộ lọc",
+    Total: "Tổng cộng"
   },
   HotelManagement: {
     Title: "Quản lý khách sạn",
+    Total: "Tổng khách sạn",
     Columns: {
       Name: "Tên khách sạn",
       Code: "Mã khách sạn",
