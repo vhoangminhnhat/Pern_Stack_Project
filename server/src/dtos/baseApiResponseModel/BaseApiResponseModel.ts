@@ -1,7 +1,7 @@
 export class BaseApiResponseModel<T extends Object> {
   constructor(
-    public data: T,
     public message: string,
+    public data?: T,
     public error?: ErrorModel,
     public paging?: Paging,
     public pagination?: Paging

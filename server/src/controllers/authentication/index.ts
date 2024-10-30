@@ -1,20 +1,65 @@
-import { Request, Response, NextFunction } from "express";
-import { SignUpRequestModel } from "../../dtos/signUp/SignUpRequestModel.js";
+import bcryptjs from "bcryptjs";
+import { Request, Response } from "express";
+import prisma from "../../../database/db.js";
 import {
   BaseApiResponseModel,
   ErrorModel,
 } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
+import { LoginRequestModel } from "../../dtos/login/LoginRequestModel.js";
+import { SignUpRequestModel } from "../../dtos/signUp/SignUpRequestModel.js";
 import { SignUpResponseModel } from "../../dtos/signUp/SignUpResponseModel.js";
-import prisma from "../../../database/db.js";
-import bcryptjs from "bcryptjs";
+import { UserResponseModel } from "../../dtos/user/UserResponseModel.js";
 import { generateTokens, getAvatar } from "../../utils/helpers.js";
-import { Gender } from "@prisma/client";
 
-export const onLogin = async (req: Request, res: Response) => {};
+export const onLogin = async (
+  req: Request<{}, {}, LoginRequestModel>,
+  res: Response<BaseApiResponseModel<UserResponseModel>>
+) => {
+  try {
+    const { password, userName } = req.body;
+    const userInfo = await prisma.user.findUnique({
+      where: { username: userName },
+    });
+    const checkingPass = await bcryptjs.compare(password!, userInfo?.password!);
+
+    if (!userName || !password) {
+      return res.status(400).json({
+        message: "Login failed",
+        error: {
+          code: 400,
+          message: "Username or password not found !",
+        },
+      });
+    }
+
+    if (!checkingPass) {
+      return res.status(400).json({
+        error: {
+          code: 400,
+          message: "Password did not match",
+        },
+        message: "Login failed",
+      });
+    }
+
+    generateTokens(userInfo?.id as string, res);
+
+    return res.status(200).json({
+      data: userInfo as UserResponseModel,
+      message: "Login successfully",
+    });
+  } catch (error) {
+    error as ErrorModel;
+    console.log(error);
+    res.status(500).json({
+      message: `System error !`,
+    });
+  }
+};
 
 export const onSignUp = async (
   req: Request<{}, {}, SignUpRequestModel>,
-  res: Response<BaseApiResponseModel<SignUpResponseModel>>,
+  res: Response<BaseApiResponseModel<SignUpResponseModel>>
 ) => {
   try {
     const { username, fullName, confirmPassword, password, gender } = req.body;
@@ -97,4 +142,18 @@ export const onSignUp = async (
   }
 };
 
-export const onLogout = async (req: Request, res: Response) => {};
+export const onLogout = async (req: Request, res: Response) => {
+  try {
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({
+      message: "Log out successfully",
+    });
+  } catch (error) {
+    error as ErrorModel;
+    console.log(error);
+    res.status(500).json({
+      data: {},
+      message: `System error !`,
+    });
+  }
+};
