@@ -1,15 +1,15 @@
-import express from "express";
+import { Router } from "express";
 import {
   onLogin,
   onLogout,
   onSignUp,
 } from "../controllers/authentication/index.js";
 
-const authRouter = express.Router();
+const authRouter = Router();
 
 authRouter.get("/login", onLogin);
 
-authRouter.post("/sign-up", onSignUp);
+authRouter.post("/sign-up", onSignUp as any);
 
 authRouter.post("/log-out", onLogout);
 
