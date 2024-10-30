@@ -1,81 +1,35 @@
-import { Skeleton } from "antd";
-import { HOST_MENUS } from "api/repositories/routes/Routes";
-import { MenuConfigModel } from "api/repositories/sidebar/model/SidebarConfigModel";
-import { AppContextConfig } from "global/context/AppContext";
-import MainLayout from "layout/mainLayout/MainLayout";
-import AppPages from "layout/navigation/AppPages";
-import { ReactNode, Suspense, useMemo } from "react";
-import { Route, Routes } from "react-router-dom";
-import "./App.css";
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
 function App() {
-  const { isAuthen, config } = AppContextConfig();
+  const [count, setCount] = useState(0)
 
-  const mapMenuItemToRoute = (menu: MenuConfigModel): any => {
-    const Component = AppPages.getPage(menu.componentName);
-    return (
-      <Route
-        key={menu.path}
-        path={menu.path}
-        element={
-          <Suspense fallback={<Skeleton active />}>
-            <Component />
-          </Suspense>
-        }
-      />
-    );
-  };
-
-  const routes = useMemo(() => {
-    let routes: Array<ReactNode> = [];
-    config?.menu?.forEach((menu) => {
-      routes.push(mapMenuItemToRoute(menu));
-
-      //Temp Limit depth 1
-      if (menu.subMenu?.length > 0) {
-        menu.subMenu.forEach((subMenu) => {
-          routes.push(mapMenuItemToRoute(subMenu));
-        });
-      }
-    });
-    return routes;
-  }, [config]);
-
-  const renderHostRoutes = () => {
-    return (
-      <Routes>
-        {HOST_MENUS.map((menu: MenuConfigModel) => {
-          const Component = AppPages.getPage(menu.componentName);
-          return (
-            <Route
-              key={menu.path}
-              path={menu.path}
-              element={
-                <Suspense fallback={<Skeleton active />}>
-                  <Component />
-                </Suspense>
-              }
-            />
-          );
-        })}
-      </Routes>
-    );
-  };
-
-  const renderContent = () => {
-    if (!isAuthen) {
-      return renderHostRoutes();
-    } else if (!config?.menu) {
-      return <Skeleton active />;
-    }
-
-    return (
-      <MainLayout>
-        <Routes>{routes}</Routes>
-      </MainLayout>
-    );
-  };
-  return <div className="App">{renderContent()}</div>;
+  return (
+    <>
+      <div>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
+  )
 }
 
-export default App;
+export default App
