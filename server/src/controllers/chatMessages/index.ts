@@ -26,7 +26,7 @@ export const sendMessages = async (req: IChatMessageInfo, res: Response) => {
     let conversation = await prisma.conversations.findFirst({
       where: {
         participantsId: {
-          hasEvery: [recieverId, senderId],
+          hasEvery: [recieverId, senderId!],
         },
       },
     });
@@ -35,7 +35,7 @@ export const sendMessages = async (req: IChatMessageInfo, res: Response) => {
       conversation = await prisma.conversations.create({
         data: {
           participantsId: {
-            set: [recieverId, senderId],
+            set: [recieverId, senderId!],
           },
         },
       });
@@ -45,7 +45,7 @@ export const sendMessages = async (req: IChatMessageInfo, res: Response) => {
     let newMessage = await prisma.messages.create({
       data: {
         body: message as string,
-        senderId,
+        senderId: senderId!,
         conversationsId: conversation.id,
       },
     });
@@ -80,7 +80,7 @@ export const chatMessages = async (
     let conversation = await prisma.conversations.findFirst({
       where: {
         participantsId: {
-          hasEvery: [userToMessId, senderId],
+          hasEvery: [userToMessId!, senderId],
         },
       },
       include: {
@@ -100,6 +100,34 @@ export const chatMessages = async (
     return res.status(200).json({
       data: conversation.messages,
       message: "Get chat message successfully",
+    });
+  } catch (error) {
+    getBaseErrorResponse(error as unknown as ErrorModel, res);
+  }
+};
+
+export const getUserConversations = async (
+  req: IChatMessageInfo,
+  res: Response<BaseApiResponseModel<UserResponseModel[]>>
+) => {
+  try {
+    const userId = req.user.id;
+    const userList = await prisma.user.findMany({
+      where: {
+        id: {
+          not: userId,
+        },
+      },
+      select: {
+        id: true,
+        fullName: true,
+        profileAvatar: true,
+      },
+    });
+
+    return res.status(200).json({
+      data: userList,
+      message: "Get user list successfully",
     });
   } catch (error) {
     getBaseErrorResponse(error as unknown as ErrorModel, res);
