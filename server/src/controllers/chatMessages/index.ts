@@ -1,6 +1,10 @@
+import { Messages } from "@prisma/client";
 import { Request, Response } from "express";
 import prisma from "../../../database/db.js";
-import { ErrorModel } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
+import {
+  BaseApiResponseModel,
+  ErrorModel,
+} from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
 import { ChatMessageRequestModel } from "../../dtos/chatMessage/ChatMessageRequestModel.js";
 import { UserResponseModel } from "../../dtos/user/UserResponseModel.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
@@ -15,14 +19,14 @@ export interface IChatMessageInfo extends Request {
 
 export const sendMessages = async (req: IChatMessageInfo, res: Response) => {
   try {
-    const { id: recievedId } = req.params;
+    const { id: recieverId } = req.params;
     const { message } = req.body;
     const senderId = req.user.id;
 
     let conversation = await prisma.conversations.findFirst({
       where: {
         participantsId: {
-          hasEvery: [recievedId, senderId],
+          hasEvery: [recieverId, senderId],
         },
       },
     });
@@ -31,7 +35,7 @@ export const sendMessages = async (req: IChatMessageInfo, res: Response) => {
       conversation = await prisma.conversations.create({
         data: {
           participantsId: {
-            set: [recievedId, senderId],
+            set: [recieverId, senderId],
           },
         },
       });
@@ -65,4 +69,39 @@ export const sendMessages = async (req: IChatMessageInfo, res: Response) => {
   }
 };
 
-export const chatMessages = async (req: Request, res: Response) => {};
+export const chatMessages = async (
+  req: Request<UserResponseModel>,
+  res: Response<BaseApiResponseModel<Messages[]>>
+) => {
+  try {
+    const { id: userToMessId } = req.params;
+    const senderId = req.user.id;
+
+    let conversation = await prisma.conversations.findFirst({
+      where: {
+        participantsId: {
+          hasEvery: [userToMessId, senderId],
+        },
+      },
+      include: {
+        messages: {
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
+      },
+    });
+    if (!conversation) {
+      return res.status(200).json({
+        data: [],
+        message: "Get chat message successfully",
+      });
+    }
+    return res.status(200).json({
+      data: conversation.messages,
+      message: "Get chat message successfully",
+    });
+  } catch (error) {
+    getBaseErrorResponse(error as unknown as ErrorModel, res);
+  }
+};
