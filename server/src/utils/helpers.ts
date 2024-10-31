@@ -16,13 +16,13 @@ export const getAvatar = (username: string, gender: string) => {
 };
 
 export const generateTokens = async (userId: string, res: Response) => {
-  let secret = Array.from({ length: 10 }, () => {
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    return characters.charAt(Math.floor(Math.random() * characters.length));
-  }).join("");
+  // let secret = Array.from({ length: 10 }, () => {
+  //   const characters =
+  //     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  //   return characters.charAt(Math.floor(Math.random() * characters.length));
+  // }).join("");
 
-  const token = jwt.sign({ userId }, `${process.env.JWT_SECRET}${secret}`, {
+  const token = jwt.sign({ userId }, `${process.env.JWT_SECRET}`, {
     expiresIn: "10d",
   });
   res.cookie("jwt", token, {
