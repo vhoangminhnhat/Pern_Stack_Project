@@ -7,7 +7,7 @@ import protectedRoutes from "../middlewares/protectedRoutes.js";
 
 const chatRouter = express.Router();
 
-chatRouter.get("/messages/:id", chatMessages as any);
+chatRouter.get("/messages/:id", protectedRoutes as any, chatMessages as any);
 
 chatRouter.post(
   "/messages/send/:id",
