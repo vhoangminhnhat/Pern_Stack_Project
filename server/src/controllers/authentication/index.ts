@@ -9,7 +9,11 @@ import { LoginRequestModel } from "../../dtos/login/LoginRequestModel.js";
 import { SignUpRequestModel } from "../../dtos/signUp/SignUpRequestModel.js";
 import { SignUpResponseModel } from "../../dtos/signUp/SignUpResponseModel.js";
 import { UserResponseModel } from "../../dtos/user/UserResponseModel.js";
-import { generateTokens, getAvatar } from "../../utils/helpers.js";
+import {
+  generateTokens,
+  getAvatar,
+  getBaseErrorResponse,
+} from "../../utils/helpers.js";
 
 export const onLogin = async (
   req: Request<{}, {}, LoginRequestModel>,
@@ -48,12 +52,8 @@ export const onLogin = async (
       data: userInfo as UserResponseModel,
       message: "Login successfully",
     });
-  } catch (error) {
-    error as ErrorModel;
-    console.log(error);
-    res.status(500).json({
-      message: `System error !`,
-    });
+  } catch (error: unknown) {
+    getBaseErrorResponse(error as unknown as ErrorModel, res);
   }
 };
 
@@ -133,12 +133,7 @@ export const onSignUp = async (
       });
     }
   } catch (error) {
-    error as ErrorModel;
-    console.log(error);
-    res.status(500).json({
-      data: {},
-      message: `System error !`,
-    });
+    getBaseErrorResponse(error as unknown as ErrorModel, res);
   }
 };
 
@@ -149,11 +144,6 @@ export const onLogout = async (req: Request, res: Response) => {
       message: "Log out successfully",
     });
   } catch (error) {
-    error as ErrorModel;
-    console.log(error);
-    res.status(500).json({
-      data: {},
-      message: `System error !`,
-    });
+    getBaseErrorResponse(error as unknown as ErrorModel, res);
   }
 };

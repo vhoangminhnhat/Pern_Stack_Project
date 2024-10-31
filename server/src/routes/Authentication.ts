@@ -7,7 +7,7 @@ import {
 
 const authRouter = Router();
 
-authRouter.get("/login", onLogin);
+authRouter.get("/login", onLogin as any);
 
 authRouter.post("/sign-up", onSignUp as any);
 
