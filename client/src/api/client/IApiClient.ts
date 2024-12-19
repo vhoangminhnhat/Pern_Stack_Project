@@ -1,4 +1,4 @@
-import { BaseApiResponseModel } from "api/baseApiResponseModel/BaseApiResponseModel";
+import { BaseApiResponseModel } from "../baseApiResponseModel/BaseApiResponseModel";
 
 export default interface IApiClient {
   post<T extends Object>(

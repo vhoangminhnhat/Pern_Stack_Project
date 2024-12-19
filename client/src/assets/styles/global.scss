@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=fallback');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// Additional styles
+@import 'app.scss';
+@import 'page/utility-patterns.scss';
+@import 'page/range-slider.scss';
+@import 'page/toggle-switch.scss';
+@import 'page/flatpickr.scss';
+@import 'page/theme.scss';
+@import 'page/not-found.scss';
