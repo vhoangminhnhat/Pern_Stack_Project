@@ -1,4 +1,5 @@
 import { Messages } from "@prisma/client";
+import axios from "axios";
 import { Request, Response } from "express";
 import prisma from "../../../database/db.js";
 import {
@@ -7,6 +8,7 @@ import {
 } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
 import { ChatMessageRequestModel } from "../../dtos/chatMessage/ChatMessageRequestModel.js";
 import { UserResponseModel } from "../../dtos/user/UserResponseModel.js";
+import { IGetUserInfo } from "../../middlewares/protectedRoutes.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
 
 export interface IChatMessageInfo extends Request {
@@ -70,7 +72,7 @@ export const sendMessages = async (req: IChatMessageInfo, res: Response) => {
 };
 
 export const chatMessages = async (
-  req: Request<UserResponseModel>,
+  req: IGetUserInfo,
   res: Response<BaseApiResponseModel<Messages[]>>
 ) => {
   try {
@@ -107,7 +109,7 @@ export const chatMessages = async (
 };
 
 export const getUserConversations = async (
-  req: IChatMessageInfo,
+  req: IGetUserInfo,
   res: Response<BaseApiResponseModel<UserResponseModel[]>>
 ) => {
   try {
@@ -131,5 +133,32 @@ export const getUserConversations = async (
     });
   } catch (error) {
     getBaseErrorResponse(error as unknown as ErrorModel, res);
+  }
+};
+
+export const aiChatMessage = async (req: Request, res: Response) => {
+  const { message } = req.body;
+  if (!message) {
+    return getBaseErrorResponse(
+      { code: 400, message: "Message is required" },
+      res
+    );
+  }
+  try {
+    const ollamaRes = await axios.post("http://localhost:11434/api/chat", {
+      model: "deepseek-coder:1.5b",
+      messages: [{ role: "user", content: message }],
+    });
+    return res.json({
+      response: ollamaRes.data.message?.content || ollamaRes.data,
+    });
+  } catch (err) {
+    return getBaseErrorResponse(
+      {
+        code: 500,
+        message: err instanceof Error ? err.message : "Ollama error",
+      },
+      res
+    );
   }
 };

@@ -26,6 +26,7 @@ model User {
 
   conversations Conversations[]
   messages Messages[]
+  articles Article[]
 }
 
 model Conversations {
@@ -50,6 +51,18 @@ model Messages {
   sender User @relation(fields: [senderId], references: [id])
 
   body String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Article {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  url       String?
+  file      String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

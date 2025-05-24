@@ -664,7 +664,8 @@ export const engLocalizedStrings = {
       name: "Name",
       code: "Code",
       createdAt: "Created Date",
-      source: "Source"
+      source: "Source",
+      file: "File",
     }
   }
 };

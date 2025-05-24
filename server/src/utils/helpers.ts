@@ -44,11 +44,13 @@ export const getBaseErrorResponse = <T extends Object>(
   res: Response<BaseApiResponseModel<T>>
 ) => {
   console.log(error);
-  res.status(500).json({
-    message: "System error",
+  res.status(error.code || 500).json({
+    message: error.message || "System error",
     error: {
-      code: 500,
-      message: "System error",
+      code: error.code || 500,
+      message: error.message || "System error",
     },
   });
 };
+
+export { ErrorModel };

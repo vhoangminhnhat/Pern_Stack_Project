@@ -659,7 +659,8 @@ export const VnLocalizedStrings = {
       name: "Tên bài báo",
       code: "Mã bài báo",
       createdAt: "Ngày tạo",
-      source: "Nguồn"
+      source: "Nguồn",
+      file: "Tài liệu",
     }
   }
 };

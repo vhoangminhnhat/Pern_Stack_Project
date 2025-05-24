@@ -11,7 +11,7 @@ export interface IGetUserInfo extends Request {
   };
 }
 
-const protectedRoutes = async (
+const protectedRoutes = (
   req: IGetUserInfo,
   res: Response,
   next: NextFunction
@@ -39,7 +39,7 @@ const protectedRoutes = async (
       });
     }
 
-    const userInfo = await prisma.user.findUnique({
+    prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
         id: true,
@@ -48,21 +48,23 @@ const protectedRoutes = async (
         gender: true,
         profileAvatar: true,
       },
+    }).then(userInfo => {
+      if (!userInfo) {
+        return res.status(400).json({
+          error: {
+            code: 400,
+            message: "User not found",
+          },
+          message: "Get profile failed",
+        });
+      }
+      req.user = userInfo;
+      next();
+    }).catch(error => {
+      next(error);
     });
-    if (!userInfo) {
-      return res.status(400).json({
-        error: {
-          code: 400,
-          message: "User not found",
-        },
-        message: "Get profile failed",
-      });
-    }
-
-    req.user = userInfo;
-    next();
   } catch (error) {
-    getBaseErrorResponse(error as unknown as ErrorModel, res);
+    next(error);
   }
 };
 

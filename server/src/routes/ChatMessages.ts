@@ -3,6 +3,7 @@ import {
   chatMessages,
   getUserConversations,
   sendMessages,
+  aiChatMessage,
 } from "../controllers/chatMessages/index.js";
 import protectedRoutes from "../middlewares/protectedRoutes.js";
 
@@ -21,5 +22,7 @@ chatRouter.post(
   protectedRoutes as any,
   sendMessages as any
 );
+
+chatRouter.post("/ai", protectedRoutes as any, aiChatMessage as any);
 
 export default chatRouter;

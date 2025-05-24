@@ -1,13 +1,13 @@
-import { AuthenticationContext } from "context/AuthenticationContext";
-import React, { Fragment } from "react";
-import ArticleManagementViewModel from "../viewModel/ArticleManagementViewModel";
-import CardComponent from "components/generalComponents/cardComponent/CardComponent";
-import { Form, Row } from "antd";
-import { FilterComponent } from "components/generalComponents/filterComponents/FilterComponents";
-import { ArticleManagementConstants } from "../constants/ArticleManagementConstants";
-import { FilterButtons } from "components/generalComponents/filterButtons";
 import { RedoOutlined, SearchOutlined } from "@ant-design/icons";
+import { Form, Row } from "antd";
+import CardComponent from "components/generalComponents/cardComponent/CardComponent";
+import { FilterButtons } from "components/generalComponents/filterButtons";
+import { FilterComponent } from "components/generalComponents/filterComponents/FilterComponents";
 import TableComponent from "components/generalComponents/tableComponent/TableComponent";
+import { AuthenticationContext } from "context/AuthenticationContext";
+import { Fragment } from "react";
+import { ArticleManagementConstants } from "../constants/ArticleManagementConstants";
+import ArticleManagementViewModel from "../viewModel/ArticleManagementViewModel";
 import ArticleManagementSummarize from "./actionViews/ArticleManagementSummarize";
 
 const ArticleManagementFeature = () => {
