@@ -149,8 +149,11 @@ export const aiChatMessage = async (req: Request, res: Response) => {
       model: "deepseek-coder:1.5b",
       messages: [{ role: "user", content: message }],
     });
-    return res.json({
-      response: ollamaRes.data.message?.content || ollamaRes.data,
+    return res.status(200).json({
+      data: {
+        data: ollamaRes.data.message?.content || ollamaRes.data,
+      },
+      message: "Get message successfully",
     });
   } catch (err) {
     return getBaseErrorResponse(

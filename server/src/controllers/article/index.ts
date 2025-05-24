@@ -7,10 +7,40 @@ import { ErrorModel, getBaseErrorResponse } from "../../utils/helpers.js";
 
 export const listArticles = async (req: IGetUserInfo, res: Response) => {
   try {
-    const articles = await prisma.article.findMany({
-      where: { userId: req.user.id },
+    const userId = req.user?.id;
+    if (!userId) {
+      return getBaseErrorResponse(
+        { code: 401, message: "User not found or unauthorized" },
+        res
+      );
+    }
+    const { name, code, url, page = 0, limit = 10 } = req.query;
+    const filters: any = { userId };
+    if (name) filters.name = { contains: name, mode: "insensitive" };
+    if (code) filters.code = { contains: code, mode: "insensitive" };
+    if (url) filters.url = { contains: url, mode: "insensitive" };
+    const pageNum = parseInt(page as string, 10) || 0;
+    const limitNum = parseInt(limit as string, 10) || 10;
+    const [articles, total] = await Promise.all([
+      prisma.article.findMany({
+        where: filters,
+        skip: pageNum * limitNum,
+        take: limitNum,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.article.count({ where: filters }),
+    ]);
+    return res.status(200).json({
+      data: {
+        data: articles,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+        },
+      },
+      message: "Get article list successfully",
     });
-    return res.json(articles);
   } catch (error) {
     return getBaseErrorResponse(error as ErrorModel, res);
   }
@@ -18,6 +48,13 @@ export const listArticles = async (req: IGetUserInfo, res: Response) => {
 
 export const createArticle = async (req: IGetUserInfo, res: Response) => {
   try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return getBaseErrorResponse(
+        { code: 401, message: "User not found or unauthorized" },
+        res
+      );
+    }
     const { name, code, url } = req.body;
     if (!name || !code) {
       return getBaseErrorResponse(
@@ -25,7 +62,6 @@ export const createArticle = async (req: IGetUserInfo, res: Response) => {
         res
       );
     }
-    // File upload
     let filePath = undefined;
     const file = (req as Request & { file?: Express.Multer.File }).file;
     if (file) {
@@ -34,7 +70,12 @@ export const createArticle = async (req: IGetUserInfo, res: Response) => {
     const article = await prisma.article.create({
       data: { name, code, url, file: filePath, userId: req.user.id },
     });
-    return res.status(201).json(article);
+    return res.status(200).json({
+      data: {
+        data: article,
+      },
+      message: "Create article successfully",
+    });
   } catch (error: any) {
     if (error.code === "P2002") {
       return getBaseErrorResponse(
@@ -68,7 +109,12 @@ export const updateArticle = async (req: IGetUserInfo, res: Response) => {
       where: { id },
       data: { name, code, url, ...(filePath && { file: filePath }) },
     });
-    return res.json(article);
+    return res.status(200).json({
+      data: {
+        data: article,
+      },
+      message: "Update article successfully",
+    });
   } catch (error: any) {
     if (error.code === "P2002") {
       return getBaseErrorResponse(
@@ -93,7 +139,12 @@ export const deleteArticle = async (req: IGetUserInfo, res: Response) => {
       const filePath = path.join(__dirname, "../../uploads", article.file);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
-    return res.json({ message: "Article deleted" });
+    return res.status(200).json({
+      data: {
+        data: article,
+      },
+      message: "Delete article successfully",
+    });
   } catch (error) {
     return getBaseErrorResponse(error as ErrorModel, res);
   }
