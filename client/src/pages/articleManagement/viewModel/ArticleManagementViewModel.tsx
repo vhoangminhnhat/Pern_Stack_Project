@@ -85,9 +85,10 @@ const ArticleManagementViewModel = () => {
     {
       title: localStrings.GlobalLabels.Actions,
       key: "actions",
+      width: "13%",
       align: "center",
       render: (_, record) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-center items-center">
           <Tooltip title="Summarize">
             <Button
               shape="circle"
