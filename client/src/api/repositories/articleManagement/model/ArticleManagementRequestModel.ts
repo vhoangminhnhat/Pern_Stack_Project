@@ -1,7 +1,7 @@
 export class ArticleManagementRequestModel {
     name?: string;
     code?: string;
-    source?: string;
+    url?: string;
     page?: number;
     limit?: number
 }

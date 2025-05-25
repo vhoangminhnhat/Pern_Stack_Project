@@ -71,7 +71,7 @@ export class ArticleManagementConstants {
       {
         colLg: 8,
         defaultValue: localStrings.GlobalLabels.All,
-        filterName: "type",
+        filterName: "url",
         filterType: "input",
         labelName: localStrings.ArticleManagement.Labels.url,
         placeholder: localStrings.GlobalPlaceholder.Name,

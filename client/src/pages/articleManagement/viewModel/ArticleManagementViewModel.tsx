@@ -8,7 +8,7 @@ import { DefaultPagingModel } from "api/repositories/defaultPagingModel/DefaultP
 import { AuthenticationContext } from "context/AuthenticationContext";
 import { useEffect, useState } from "react";
 import { IoNewspaper } from "react-icons/io5";
-import { getMessage } from "utils/helpersInTs/helpersInTs";
+import { getMessage, paramsChecking } from "utils/helpersInTs/helpersInTs";
 import { ArticleManagementConstants } from "../constants/ArticleManagementConstants";
 
 const ArticleManagementViewModel = () => {
@@ -22,6 +22,11 @@ const ArticleManagementViewModel = () => {
     {}
   );
   const [summary, setSummary] = useState<string>("");
+  const [paramsExport, setParamsExport] =
+    useState<ArticleManagementRequestModel>({
+      page: 0,
+      limit: 10,
+    });
   const [filterForm] = Form.useForm();
   const { localStrings } = AuthenticationContext();
 
@@ -41,6 +46,18 @@ const ArticleManagementViewModel = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = async (values: ArticleManagementRequestModel) => {
+    let params = {
+      name: paramsChecking(values?.name, "input"),
+      code: paramsChecking(values?.code, "input"),
+      url: paramsChecking(values?.url, "input"),
+      page: 0,
+      limit: pageSize,
+    } as typeof values;
+    setParamsExport(params);
+    await fetchList(params);
   };
 
   const handleSummarize = async (article: ArticleManagementResponseModel) => {
@@ -66,8 +83,9 @@ const ArticleManagementViewModel = () => {
   const columns: ColumnsType<ArticleManagementResponseModel> = [
     ...ArticleManagementConstants?.mainColumns(localStrings),
     {
-      title: "Actions",
+      title: localStrings.GlobalLabels.Actions,
       key: "actions",
+      align: "center",
       render: (_, record) => (
         <div className="flex gap-2">
           <Tooltip title="Summarize">
@@ -105,11 +123,18 @@ const ArticleManagementViewModel = () => {
   const handleTableChange = async (pagination?: DefaultPagingModel | any) => {
     setPage(pagination?.current! - 1);
     setPageSize(pagination?.pageSize);
+    let params = {
+      ...paramsExport,
+      page: pagination?.current! - 1,
+      limit: pagination?.pageSize,
+    };
+    await fetchList(params);
   };
 
   useEffect(() => {
-    fetchList({ page: 0, limit: 10 });
+    fetchList(paramsExport);
   }, []);
+
   return {
     list,
     loading,
@@ -120,6 +145,7 @@ const ArticleManagementViewModel = () => {
     summaryModal,
     summary,
     setSummaryModal,
+    handleSearch,
     setModal,
     fetchList,
     filterForm,

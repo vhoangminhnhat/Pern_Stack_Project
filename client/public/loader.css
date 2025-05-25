@@ -16,11 +16,11 @@ body {
   left: 0;
   right: 0;
   margin: auto;
-  width: 70px;
+  width: 55px;
   aspect-ratio: 1;
   border-radius: 50%;
   padding: 3px;
-  background: radial-gradient(farthest-side, #0194f3 95%, #0000) 50% 0/12px 12px
+  background: radial-gradient(farthest-side, #070bf5 95%, #0000) 50% 0/12px 12px
       no-repeat,
     radial-gradient(
         farthest-side,

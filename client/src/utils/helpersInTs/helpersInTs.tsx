@@ -1,8 +1,8 @@
 import { FormItemProps, message, UploadFile } from "antd";
-import { isEmpty } from "lodash";
-import { strings } from "utils/localizedStrings";
 import axios from "axios";
 import dayjs from "dayjs";
+import { isEmpty, isUndefined } from "lodash";
+import { strings } from "utils/localizedStrings";
 export const createFormRules = (
   stricted: boolean,
   dataType: string,
@@ -332,4 +332,16 @@ export const urlToFile = async (
     thumbUrl: url,
     originFileObj: file,
   } as UploadFile;
+};
+
+export const paramsChecking = <T extends unknown>(
+  value: T | undefined,
+  type: "select" | "input"
+) => {
+  switch (type) {
+    case "select":
+      return value === "Tất cả" || value === "All" ? undefined : value;
+    case "input":
+      return isEmpty(value) || isUndefined(value) ? undefined : value;
+  }
 };

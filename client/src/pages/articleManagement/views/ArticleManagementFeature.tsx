@@ -26,6 +26,7 @@ const ArticleManagementFeature = () => {
     modal,
     setModal,
     setSummaryModal,
+    handleSearch,
     summary,
     summaryModal,
   } = ArticleManagementViewModel();
@@ -35,7 +36,12 @@ const ArticleManagementFeature = () => {
         title: localStrings.ArticleManagement.Main,
         extra: <Fragment key={0}></Fragment>,
         children: (
-          <Form form={filterForm}>
+          <Form
+            form={filterForm}
+            onFinish={async () =>
+              await handleSearch(filterForm?.getFieldsValue(true))
+            }
+          >
             <Row gutter={[2, 2]}>
               {FilterComponent(
                 ArticleManagementConstants?.filters(localStrings)
