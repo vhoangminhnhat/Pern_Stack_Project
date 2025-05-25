@@ -1,8 +1,8 @@
 export const API_PATH = {
   PARTNER_LIST: getV1Path("partner/list"),
   ROLE_LIST: getV1Path("role/list"),
-  USER_INFO: getV1Path("user"),
-  LOGIN: getV1Path("user/login"),
+  USER_INFO: getV1Path("personal/me"),
+  LOGIN: getV1Path("authen/login"),
   CHANGE_PASS: getV1Path("user/change-password"),
 };
 
@@ -88,7 +88,7 @@ export const ADDRESS_PATH = {
 
 export const PACKAGES_REGISTRAION = {
   PACKAGES_BY_PHONE: getV2Path("mobile/data/phone"),
-  DEFAULT_PACKAGE: getV1Path("mobile/data/packages")
+  DEFAULT_PACKAGE: getV1Path("mobile/data/packages"),
 };
 
 export const TRAVEL_SIM = {
@@ -101,12 +101,17 @@ export const TRAVEL_SIM = {
   UPDATE: getV1Path("profile/update"),
   NATION_LIST: getV1Path("profile/location"),
   UPDATE_STATUS: getV1Path("profile/update/status"),
-  CONNECT_SIM: getV1Path("profile/connect")
+  CONNECT_SIM: getV1Path("profile/connect"),
+};
+
+export const ARTICLE_MANAGEMENT = {
+  LIST: getV1Path("article"),
+  SUMMARIZE: getV1Path("article/summarize"),
 };
 
 export const TOOLS = {
-  VIDEO_GENERATION: getV1Path("tool/generate/videocall")
-}
+  VIDEO_GENERATION: getV1Path("tool/generate/videocall"),
+};
 
 function getV1Path(path: String) {
   return `${process.env.REACT_APP_BASE_URL}/api/v1/${path}`;

@@ -8,6 +8,7 @@ import { AuthenticationContext } from "context/AuthenticationContext";
 import { Fragment } from "react";
 import { ArticleManagementConstants } from "../constants/ArticleManagementConstants";
 import ArticleManagementViewModel from "../viewModel/ArticleManagementViewModel";
+import ArticleIFrame from "./actionViews/ArticleIFrame";
 import ArticleManagementSummarize from "./actionViews/ArticleManagementSummarize";
 
 const ArticleManagementFeature = () => {
@@ -24,6 +25,9 @@ const ArticleManagementFeature = () => {
     columns,
     modal,
     setModal,
+    setSummaryModal,
+    summary,
+    summaryModal,
   } = ArticleManagementViewModel();
   return (
     <CardComponent
@@ -66,7 +70,14 @@ const ArticleManagementFeature = () => {
                 }}
               />
             </Row>
-            <ArticleManagementSummarize data={{ modal, setModal }} />
+            <ArticleManagementSummarize
+              data={{
+                modal: summaryModal,
+                summary,
+                setModal: setSummaryModal,
+              }}
+            />
+            <ArticleIFrame data={{ modal, setModal }} />
           </Form>
         ),
       }}

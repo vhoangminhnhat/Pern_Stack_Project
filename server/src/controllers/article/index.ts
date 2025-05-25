@@ -1,3 +1,4 @@
+import axios from "axios";
 import { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
@@ -137,6 +138,57 @@ export const deleteArticle = async (req: IGetUserInfo, res: Response) => {
       data: article,
       message: "Delete article successfully",
     });
+  } catch (error) {
+    return getBaseErrorResponse(error as ErrorModel, res);
+  }
+};
+
+export const summarizeArticle = async (req: IGetUserInfo, res: Response) => {
+  try {
+    const { code, url } = req.query;
+
+    if (!code || !url) {
+      return getBaseErrorResponse(
+        { code: 400, message: "Code and URL are required" },
+        res
+      );
+    }
+
+    const article = await prisma.article.findFirst({
+      where: {
+        code: code as string,
+        userId: req.user.id,
+      },
+    });
+
+    if (!article) {
+      return getBaseErrorResponse(
+        { code: 404, message: "Article not found" },
+        res
+      );
+    }
+
+    try {
+      const response = await axios.post("http://localhost:11434/api/generate", {
+        model: "deepseek",
+        prompt: `Summarize this article for me: ${article.name}, url ${url}`,
+        stream: false,
+      });
+
+      return res.status(200).json({
+        data: {
+          summary: response.data.response,
+          article: article,
+        },
+        message: "Article summarized successfully",
+      });
+    } catch (ollamaError) {
+      console.error("Ollama API Error:", ollamaError);
+      return getBaseErrorResponse(
+        { code: 500, message: "Failed to generate summary" },
+        res
+      );
+    }
   } catch (error) {
     return getBaseErrorResponse(error as ErrorModel, res);
   }

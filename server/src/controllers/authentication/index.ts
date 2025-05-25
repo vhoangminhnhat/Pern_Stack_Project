@@ -46,12 +46,15 @@ export const onLogin = async (
       });
     }
 
-    generateTokens(userInfo?.id as string, res);
+    const token = await generateTokens(userInfo?.id as string, res);
     const userWithoutPassword = { ...userInfo };
     delete userWithoutPassword.password;
 
     return res.status(200).json({
-      data: userWithoutPassword as UserResponseModel,
+      data: {
+        ...(userWithoutPassword as UserResponseModel),
+        token,
+      },
       message: "Login successfully",
     });
   } catch (error: unknown) {
@@ -66,11 +69,10 @@ export const onSignUp = async (
   try {
     const { username, fullName, confirmPassword, password, gender } = req.body;
     const userInfo = await prisma.user.findUnique({ where: { username } });
-    //hash password
+
     const salt = await bcryptjs.genSalt(10);
     const hasedPass = await bcryptjs.hash(password as string, salt);
 
-    //create avatar based on gender
     const profileAvatar = getAvatar(username as string, gender as string);
 
     if (!username || !fullName || !confirmPassword || !password || !gender) {

@@ -34,8 +34,8 @@ const Login = ({ history }) => {
         password: value?.password,
       };
       const { data } = await defaultAuthenticationsRepository?.login(bodies);
-      localStorage.setItem("thesis-cms-token", data.id);
-      delete data.id;
+      localStorage.setItem("thesis-cms-token", data.token);
+      delete data.token;
       await getRoles().then(() => {
         history.push("/personal/generals");
       });

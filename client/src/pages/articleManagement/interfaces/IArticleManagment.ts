@@ -1,5 +1,6 @@
 import { FormInstance } from "antd";
 import { ArticleManagementResponseModel } from "api/repositories/articleManagement/model/ArticleManagementResponseModel";
+import { Dispatch, SetStateAction } from "react";
 
 export interface IUploadArticleFeature {
   data: {
@@ -12,5 +13,13 @@ export interface IUploadArticleFeature {
     modalLoading: boolean;
     setDetailInfo: (info: any) => void;
     setDetailModal: (open: boolean) => void;
+  };
+}
+
+export interface IArticleManagementSummarize {
+  data: {
+    summary: string;
+    modal: boolean;
+    setModal: Dispatch<SetStateAction<boolean>>;
   };
 }

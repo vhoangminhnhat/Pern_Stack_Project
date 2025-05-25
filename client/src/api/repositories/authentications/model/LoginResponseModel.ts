@@ -1,6 +1,7 @@
 export class LoginResponseModel {
   constructor(
     public id: string,
+    public token?: string,
     public conversationId?: string[],
     public createdAt?: Date,
     public fullName?: string,

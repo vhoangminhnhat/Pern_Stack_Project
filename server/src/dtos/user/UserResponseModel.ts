@@ -1,8 +1,9 @@
-import { $Enums, User } from "@prisma/client";
+import { $Enums } from "@prisma/client";
 
 export class UserResponseModel {
   constructor(
     public id: string,
+    public token?: string,
     public conversationId?: string[],
     public createdAt?: Date,
     public fullName?: string,
