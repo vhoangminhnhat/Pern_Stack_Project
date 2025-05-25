@@ -4,16 +4,20 @@ import {
   createArticle,
   deleteArticle,
   listArticles,
-  updateArticle,
   summarizeArticle,
+  updateArticle,
 } from "../controllers/article/index.js";
-import protectedRoutes from "../middlewares/protectedRoutes.js";
+import { protectedRoutes } from "../middlewares/protectedRoutes.js";
 
 const upload = multer({ dest: "uploads/" });
 const articleRouter = Router();
 
 articleRouter.get("/", protectedRoutes as any, listArticles as any);
-articleRouter.get("/summarize", protectedRoutes as any, summarizeArticle as any);
+articleRouter.get(
+  "/summarize",
+  protectedRoutes as any,
+  summarizeArticle as any
+);
 articleRouter.post(
   "/create",
   protectedRoutes as any,

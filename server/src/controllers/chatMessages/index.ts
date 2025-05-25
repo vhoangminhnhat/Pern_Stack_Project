@@ -169,7 +169,7 @@ export class ChatMessageController {
 
       return res.status(200).json({
         data: conversations,
-        meta: {
+        pagination: {
           total,
           page: Number(page),
           limit: Number(limit),

@@ -4,7 +4,7 @@ import {
   aiConversation,
   listConversations,
 } from "../controllers/chatMessages/index.js";
-import protectedRoutes from "../middlewares/protectedRoutes.js";
+import { protectedRoutes } from "../middlewares/protectedRoutes.js";
 
 const chatRouter = express.Router();
 
