@@ -26,19 +26,21 @@ class ChatImpl implements IChatRepository {
     page?: number;
     limit?: number;
   }): Promise<BaseApiResponseModel<ConversationResponseModel[]>> {
-    return await client.get(CHAT_MESSAGE?.CONVERSATIONS, params);
+    return await client.get(CHAT_MESSAGE.CONVERSATIONS, params);
   }
 
   async getMessages(
     conversationId: string
   ): Promise<BaseApiResponseModel<ChatMessageResponseModel[]>> {
-    return await client.get(`${CHAT_MESSAGE.MESSAGES}/${conversationId}`);
+    return await client.get(
+      `${CHAT_MESSAGE.MESSAGES}/${conversationId}`
+    );
   }
 
   async sendMessage(
     body: ChatMessageRequestModel
   ): Promise<BaseApiResponseModel<SendMessageResponseModel>> {
-    return await client.post(CHAT_MESSAGE?.AI_CONVERSATION, body);
+    return await client.post(CHAT_MESSAGE.AI_CONVERSATION, body);
   }
 }
 

@@ -1,4 +1,4 @@
-import { Button } from "antd";
+import { FloatButton } from "antd";
 import { ReactNode } from "react";
 
 interface FloatingButtonProps {
@@ -13,14 +13,23 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({
   className = "",
 }) => {
   return (
-    <Button
+    <FloatButton
       type="primary"
       shape="circle"
       icon={icon}
       onClick={onClick}
-      className={`fixed bottom-8 right-8 w-12 h-12 text-lg ${className}`}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "48px",
+        height: "48px",
+        padding: 0,
+        insetInlineEnd: 24 + 10,
+      }}
+      className={`bottom-8`}
     />
   );
 };
 
-export default FloatingButton; 
+export default FloatingButton;

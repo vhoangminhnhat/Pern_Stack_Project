@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import prisma from "../../../database/db.js";
 import { ErrorModel } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
 import { ChatMessageRequestModel } from "../../dtos/chatMessage/ChatMessageRequestModel.js";
-import { UserResponseModel } from "../../dtos/user/UserResponseModel.js";
 import { IGetUserInfo } from "../../middlewares/protectedRoutes.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
 
@@ -44,13 +43,20 @@ export class ChatMessageController {
       );
     }
     try {
-      const ollamaRes = await axios.post("http://127.0.0.1:11434/api/chat", {
-        model: "deepseek-coder:1.5b",
-        messages: [{ role: "user", content: message }],
-      });
+      const ollamaRes = await axios.post(
+        "http://127.0.0.1:11434/api/generate",
+        {
+          model: "deepseek-r1:1.5b",
+          messages: [{ role: "user", content: message }],
+        }
+      );
+
+      const aiResponseContent = (ollamaRes.data.response || "")
+        .replace(/<think>.*?<\/think>/gs, "")
+        .trim();
       return res.status(200).json({
         data: {
-          data: ollamaRes.data.message?.content || ollamaRes.data,
+          data: aiResponseContent,
         },
         message: "Get message successfully",
       });
@@ -77,10 +83,8 @@ export class ChatMessageController {
         );
       }
 
-      // Get or create AI user
       const aiUser = await ChatMessageController.getOrCreateAIUser();
 
-      // Find or create conversation with AI
       let conversation = await prisma.conversations.findFirst({
         where: {
           participantsId: {
@@ -108,16 +112,21 @@ export class ChatMessageController {
         },
       });
 
-      // Get AI response from Ollama
-      const ollamaRes = await axios.post("http://127.0.0.1:11434/api/chat", {
-        model: "deepseek-coder:1.5b",
-        messages: [{ role: "user", content: message }],
-      });
+      const ollamaRes = await axios.post(
+        "http://127.0.0.1:11434/api/generate",
+        {
+          model: "deepseek-r1:1.5b",
+          prompt: message,
+          stream: false,
+        }
+      );
 
-      // Create AI message
+      const aiResponseContent = (ollamaRes.data.response || "")
+        .replace(/<think>.*?<\/think>/gs, "")
+        .trim();
       const aiMessage = await prisma.messages.create({
         data: {
-          body: ollamaRes.data.message?.content || ollamaRes.data,
+          body: aiResponseContent,
           senderId: aiUser.id,
           conversationsId: conversation.id,
         },
@@ -125,8 +134,14 @@ export class ChatMessageController {
 
       return res.status(200).json({
         data: {
-          userMessage,
-          aiMessage,
+          userMessage: {
+            ...userMessage,
+            isAI: false,
+          },
+          aiMessage: {
+            ...aiMessage,
+            isAI: true,
+          },
         },
         message: "Chat message sent successfully",
       });
@@ -206,4 +221,5 @@ export class ChatMessageController {
   }
 }
 
-export const { aiChatMessage, aiConversation, listConversations } = ChatMessageController;
+export const { aiChatMessage, aiConversation, listConversations } =
+  ChatMessageController;

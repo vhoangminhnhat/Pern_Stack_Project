@@ -662,5 +662,8 @@ export const VnLocalizedStrings = {
       url: "Nguồn",
       file: "Tài liệu",
     }
+  },
+  ChatBox: {
+    Title: 'Câu hỏi dành cho AI'
   }
 };

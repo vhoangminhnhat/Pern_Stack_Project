@@ -1,7 +1,7 @@
-import { MessageOutlined } from "@ant-design/icons";
 import Header from "components/Header";
 import ChatBoxAgentViewmodel from "pages/chatBoxAgent/viewModel/ChatBoxAgentViewmodel";
 import { useState } from "react";
+import { RiRobot2Line } from "react-icons/ri";
 import Sidebar from "../Sidebar";
 import FloatingButton from "../floatingButton/FloatingButton";
 import ChatBoxModal from "../modals/ChatBoxModal";
@@ -31,7 +31,16 @@ function Main({ children, history, info }: any) {
       <div className="relative flex flex-col flex-1 overflow-y-auto">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <section>{children}</section>
-        <FloatingButton icon={<MessageOutlined />} onClick={handleClick} />
+        <FloatingButton
+          icon={
+            <RiRobot2Line
+              style={{
+                fontSize: "20px",
+              }}
+            />
+          }
+          onClick={handleClick}
+        />
         <ChatBoxModal
           show={isModalVisible}
           close={() => setIsModalVisible(false)}

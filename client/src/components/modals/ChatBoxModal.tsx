@@ -51,17 +51,17 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
 
   return (
     <Modal
-      title="Chat with AI Assistant"
+      title={localStrings.ChatBox.Title}
       open={show}
       footer={null}
       onCancel={close}
       className="p-3"
       centered
-      width={400}
+      width={600}
       styles={{
         body: {
           overflowY: "auto",
-          maxHeight: "calc(100vh - 160px)",
+          maxHeight: "calc(100vh - 140px)",
           scrollbarWidth: "thin",
           overflowX: "hidden",
         },
@@ -73,18 +73,24 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
             <div
               key={message.id}
               className={`flex ${
-                message.senderId === "ai" ? "justify-start" : "justify-end"
+                message.isAI ? "justify-start" : "justify-end"
               }`}
             >
               <div
                 className={`max-w-[80%] rounded-lg p-3 ${
-                  message.senderId === "ai"
-                    ? "bg-gray-100"
-                    : "bg-blue-500 text-white"
+                  message.isAI
+                    ? "bg-white border border-gray-200 shadow-sm"
+                    : "bg-blue-500 text-white shadow-md"
                 }`}
               >
-                <p className="text-sm">{message.body}</p>
-                <p className="text-xs mt-1 opacity-70">
+                <p className="text-sm whitespace-pre-wrap break-words">
+                  {message.body}
+                </p>
+                <p
+                  className={`text-xs mt-1 ${
+                    message.isAI ? "text-gray-500" : "text-blue-100"
+                  }`}
+                >
                   {moment(message.createdAt).format("HH:mm")}
                 </p>
               </div>

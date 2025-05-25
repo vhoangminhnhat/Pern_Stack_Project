@@ -668,4 +668,7 @@ export const engLocalizedStrings = {
       file: "File",
     },
   },
+  ChatBox: {
+    Title: "Chat with AI assistant",
+  },
 };

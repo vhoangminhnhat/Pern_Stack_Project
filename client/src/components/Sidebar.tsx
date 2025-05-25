@@ -4,7 +4,6 @@ import { AuthenticationContext } from "context/AuthenticationContext";
 import useThemes from "hooks/useThemes";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useHistory, useLocation } from "react-router-dom";
-import { colorFormat } from "utils/format/ColorFormat";
 import SidebarLogo from "../assets/images/hcmus.png";
 
 function Sidebar({ sidebarOpen, setSidebarOpen }) {
@@ -44,16 +43,6 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
           menu.path,
           menu.componentName,
           menu?.icon
-          // <img
-          //   src={menu?.icon as string}
-          //   alt={menu?.name}
-          //   style={{
-          //     filter: location?.pathname?.includes(menu?.path)
-          //       ? colorFormat?.FilterBlueImage
-          //       : "none",
-          //   }}
-          //   className={`object-cover w-4 h-4`}
-          // />
         ),
         children:
           menu.subMenu?.length > 0
@@ -64,16 +53,6 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                     subMenu.path,
                     subMenu.componentName,
                     subMenu?.icon
-                    // <img
-                    //   src={subMenu?.icon as string}
-                    //   alt={subMenu?.name}
-                    //   style={{
-                    //     filter: location?.pathname?.includes(subMenu?.path)
-                    //       ? colorFormat?.FilterBlueImage
-                    //       : "none",
-                    //   }}
-                    //   className={`object-cover w-4 h-4`}
-                    // />
                   )
               )
             : undefined,
@@ -169,7 +148,12 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
               className="flex flex-col justify-center items-center object-contain rounded-lg px-4 py-2"
               style={{ backgroundColor: sideBarColor }}
             >
-              <img src={SidebarLogo} height={40} width={100} alt="sidebarLogo" />
+              <img
+                src={SidebarLogo}
+                height={40}
+                width={100}
+                alt="sidebarLogo"
+              />
             </div>
           </NavLink>
         </div>
