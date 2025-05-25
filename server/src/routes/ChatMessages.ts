@@ -1,28 +1,25 @@
 import express from "express";
 import {
   aiChatMessage,
-  chatMessages,
-  getUserConversations,
-  sendMessages,
+  aiConversation,
+  listConversations,
 } from "../controllers/chatMessages/index.js";
 import protectedRoutes from "../middlewares/protectedRoutes.js";
 
 const chatRouter = express.Router();
 
 chatRouter.get(
-  "/user-conversations",
+  "/conversations",
   protectedRoutes as any,
-  getUserConversations as any
-);
-
-chatRouter.get("/messages/:id", protectedRoutes as any, chatMessages as any);
-
-chatRouter.post(
-  "/messages/send/:id",
-  protectedRoutes as any,
-  sendMessages as any
+  listConversations as any
 );
 
 chatRouter.post("/ai", protectedRoutes as any, aiChatMessage as any);
+
+chatRouter.post(
+  "/ai-conversation",
+  protectedRoutes as any,
+  aiConversation as any
+);
 
 export default chatRouter;
