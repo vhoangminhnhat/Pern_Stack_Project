@@ -1,14 +1,5 @@
-import { CloseOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  TreeSelect,
-} from "antd";
+import { Col, Form, Input, InputNumber, Select, TreeSelect } from "antd";
+import { AuthenticationContext } from "context/AuthenticationContext";
 import { isEmpty } from "lodash";
 import moment from "moment";
 import {
@@ -18,14 +9,12 @@ import {
 import {
   MultiSelectOps,
   SelectOps,
-  TreeSelectOps,
 } from "../selectComponent/model/SelectOpsModel";
 import { DetailActionsType } from "./model/ActionsComponentModel";
-import { AuthenticationContext } from "context/AuthenticationContext";
 
 const ActionsComponent = <T extends Object>(props: DetailActionsType<T>) => {
   const { data, info } = props;
-  const {localStrings} = AuthenticationContext();
+  const { localStrings } = AuthenticationContext();
   return (
     <>
       {data?.map((item) => {
@@ -53,10 +42,14 @@ const ActionsComponent = <T extends Object>(props: DetailActionsType<T>) => {
                   )}
                 </span>
               ) : item?.type === "input" && item?.pointerEvents === false ? (
-                <Input style={item?.style} placeholder={item?.placeholder} className="rounded-lg" />
+                <Input
+                  style={item?.style}
+                  placeholder={item?.placeholder}
+                  className="rounded-lg"
+                />
               ) : item?.forPhone === true && item?.type === "input" ? (
                 <Input
-                style={item?.style}
+                  style={item?.style}
                   placeholder={item?.placeholder}
                   className="rounded-lg border-gray-300"
                   maxLength={10}
@@ -153,119 +146,6 @@ const ActionsComponent = <T extends Object>(props: DetailActionsType<T>) => {
                       .includes(inputValue.toLowerCase())
                   }
                 />
-              ) : item?.type === "dynamic-form" ? (
-                <Form.List name={[item.name, "country"]}>
-                  {(fields, { add, remove }) => (
-                    <div
-                      style={{
-                        display: "flex",
-                        rowGap: 16,
-                        flexDirection: "column",
-                      }}
-                    >
-                      {fields.map((field) => (
-                        <Card
-                          size="small"
-                          key={field.key}
-                          extra={
-                            <CloseOutlined
-                              onClick={() => {
-                                remove(field.name);
-                              }}
-                            />
-                          }
-                        >
-                          <Form.Item name={[field.name, "id"]}>
-                            <Select
-                              placeholder="Select a country"
-                              options={item.countries}
-                              fieldNames={{ label: "name", value: "id" }}
-                            />
-                          </Form.Item>
-
-                          <Form.Item>
-                            <Form.List name={[field.name, "roamingPartner"]}>
-                              {(subFields, subOpt) => (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    rowGap: 16,
-                                  }}
-                                >
-                                  {subFields.map((subField) => (
-                                    <div
-                                      key={subField.key}
-                                      style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        rowGap: 8,
-                                      }}
-                                    >
-                                      <Form.Item name={[subField.name, "id"]}>
-                                        <Select
-                                          placeholder="Select a roaming partner"
-                                          options={item.roamingPartners}
-                                          fieldNames={{
-                                            label: "name",
-                                            value: "id",
-                                          }}
-                                        />
-                                      </Form.Item>
-                                      <Form.Item
-                                        name={[subField.name, "handSet"]}
-                                      >
-                                        <Input placeholder="Handset" />
-                                      </Form.Item>
-                                      <Form.Item
-                                        name={[
-                                          subField.name,
-                                          "codeMobileDevice",
-                                        ]}
-                                      >
-                                        <Input placeholder="Code Mobile Device" />
-                                      </Form.Item>
-                                      <Form.Item
-                                        name={[
-                                          subField.name,
-                                          "transferredAccountDataInterchangeGroup",
-                                        ]}
-                                      >
-                                        <Input placeholder="Transferred Account Data Interchange Group" />
-                                      </Form.Item>
-                                      <Button
-                                        type="dashed"
-                                        onClick={() =>
-                                          subOpt.remove(subField.name)
-                                        }
-                                        style={{ alignSelf: "flex-end" }}
-                                      >
-                                        Remove Partner
-                                      </Button>
-                                    </div>
-                                  ))}
-                                  <Button
-                                    type="dashed"
-                                    onClick={() => subOpt.add()}
-                                    block
-                                  >
-                                    {
-                                      localStrings.RoamingManagement.RoamingPartner
-                                        .Add
-                                    }
-                                  </Button>
-                                </div>
-                              )}
-                            </Form.List>
-                          </Form.Item>
-                        </Card>
-                      ))}
-                      <Button type="dashed" onClick={() => add()} block>
-                        + Add Country
-                      </Button>
-                    </div>
-                  )}
-                </Form.List>
               ) : (
                 <Input.TextArea
                   placeholder={item?.placeholder}

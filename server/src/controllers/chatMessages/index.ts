@@ -7,16 +7,35 @@ import { UserResponseModel } from "../../dtos/user/UserResponseModel.js";
 import { IGetUserInfo } from "../../middlewares/protectedRoutes.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
 
-export interface IChatMessageInfo extends Request {
-  params: {
-    id: string;
-  };
+export interface IChatMessageInfo extends IGetUserInfo {
   body: ChatMessageRequestModel;
-  user: UserResponseModel;
 }
 
 export class ChatMessageController {
-  async aiChatMessage(req: Request, res: Response) {
+  private static async getOrCreateAIUser() {
+    const aiUser = await prisma.user.findFirst({
+      where: {
+        username: "ai-assistant",
+      },
+    });
+
+    if (aiUser) {
+      return aiUser;
+    }
+
+    return await prisma.user.create({
+      data: {
+        username: "ai-assistant",
+        fullName: "AI Assistant",
+        password: "ai-assistant-password", // This won't be used for login
+        gender: "male",
+        profileAvatar:
+          "https://api.dicebear.com/7.x/bottts/svg?seed=ai-assistant",
+      },
+    });
+  }
+
+  static async aiChatMessage(req: Request, res: Response) {
     const { message } = req.body;
     if (!message) {
       return getBaseErrorResponse(
@@ -25,7 +44,7 @@ export class ChatMessageController {
       );
     }
     try {
-      const ollamaRes = await axios.post("http://localhost:11434/api/chat", {
+      const ollamaRes = await axios.post("http://127.0.0.1:11434/api/chat", {
         model: "deepseek-coder:1.5b",
         messages: [{ role: "user", content: message }],
       });
@@ -46,7 +65,7 @@ export class ChatMessageController {
     }
   }
 
-  async aiConversation(req: IChatMessageInfo, res: Response) {
+  static async aiConversation(req: IChatMessageInfo, res: Response) {
     try {
       const { message } = req.body;
       const senderId = req.user.id;
@@ -58,11 +77,14 @@ export class ChatMessageController {
         );
       }
 
+      // Get or create AI user
+      const aiUser = await ChatMessageController.getOrCreateAIUser();
+
       // Find or create conversation with AI
       let conversation = await prisma.conversations.findFirst({
         where: {
           participantsId: {
-            hasEvery: [process.env.AI_USER_ID!, senderId!],
+            hasEvery: [aiUser.id, senderId],
           },
         },
       });
@@ -71,7 +93,7 @@ export class ChatMessageController {
         conversation = await prisma.conversations.create({
           data: {
             participantsId: {
-              set: [process.env.AI_USER_ID!, senderId!],
+              set: [aiUser.id, senderId],
             },
           },
         });
@@ -81,13 +103,13 @@ export class ChatMessageController {
       const userMessage = await prisma.messages.create({
         data: {
           body: message,
-          senderId: senderId!,
+          senderId: senderId,
           conversationsId: conversation.id,
         },
       });
 
       // Get AI response from Ollama
-      const ollamaRes = await axios.post("http://localhost:11434/api/chat", {
+      const ollamaRes = await axios.post("http://127.0.0.1:11434/api/chat", {
         model: "deepseek-coder:1.5b",
         messages: [{ role: "user", content: message }],
       });
@@ -96,7 +118,7 @@ export class ChatMessageController {
       const aiMessage = await prisma.messages.create({
         data: {
           body: ollamaRes.data.message?.content || ollamaRes.data,
-          senderId: process.env.AI_USER_ID!,
+          senderId: aiUser.id,
           conversationsId: conversation.id,
         },
       });
@@ -109,6 +131,7 @@ export class ChatMessageController {
         message: "Chat message sent successfully",
       });
     } catch (err) {
+      console.error("Error in aiConversation:", err);
       return getBaseErrorResponse(
         {
           code: 500,
@@ -122,7 +145,7 @@ export class ChatMessageController {
     }
   }
 
-  async listConversations(req: IGetUserInfo, res: Response) {
+  static async listConversations(req: IGetUserInfo, res: Response) {
     try {
       const userId = req.user.id;
       const { page = 1, limit = 10 } = req.query as {
@@ -183,6 +206,4 @@ export class ChatMessageController {
   }
 }
 
-const chatMessageController = new ChatMessageController();
-export const { aiChatMessage, aiConversation, listConversations } =
-  chatMessageController;
+export const { aiChatMessage, aiConversation, listConversations } = ChatMessageController;

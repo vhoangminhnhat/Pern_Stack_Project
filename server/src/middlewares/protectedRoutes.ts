@@ -43,35 +43,30 @@ export class MiddleWare {
           process.env.JWT_SECRET!
         ) as DecodedToken;
 
-        prisma.user
-          .findUnique({
-            where: { id: decoded.userId },
-            select: {
-              id: true,
-              fullName: true,
-              username: true,
-              gender: true,
-              profileAvatar: true,
+        const userInfo = await prisma.user.findUnique({
+          where: { id: decoded.userId },
+          select: {
+            id: true,
+            fullName: true,
+            username: true,
+            gender: true,
+            profileAvatar: true,
+          },
+        });
+
+        if (!userInfo) {
+          return res.status(400).json({
+            error: {
+              code: 400,
+              message: "User not found",
             },
-          })
-          .then((userInfo) => {
-            if (!userInfo) {
-              return res.status(400).json({
-                error: {
-                  code: 400,
-                  message: "User not found",
-                },
-                message: "Get profile failed",
-              });
-            }
-            console.log("User found:", userInfo);
-            req.user = userInfo;
-            next();
-          })
-          .catch((error) => {
-            console.error("Database error:", error);
-            next(error);
+            message: "Get profile failed",
           });
+        }
+
+        console.log("User found:", userInfo);
+        req.user = userInfo;
+        next();
       } catch (jwtError) {
         console.error("JWT Verification Error:", jwtError);
         return res.status(401).json({

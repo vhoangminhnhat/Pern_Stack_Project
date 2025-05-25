@@ -6,6 +6,12 @@ export const API_PATH = {
   CHANGE_PASS: getV1Path("user/change-password"),
 };
 
+export const CHAT_MESSAGE = {
+  CONVERSATIONS: getV1Path("chat-messages/conversations"),
+  MESSAGES: getV1Path("chat-messages/messages"),
+  AI_CONVERSATION: getV1Path("chat-messages/ai-conversation"),
+};
+
 export const GENERAL = {
   GENERAL_DATA: getV1Path("report/revenue/trending"),
 };

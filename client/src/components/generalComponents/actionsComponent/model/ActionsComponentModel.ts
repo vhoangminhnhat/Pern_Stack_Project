@@ -1,4 +1,3 @@
-import { CountryListResponseModel } from "api/repositories/countryManagement/model/CountryListResponseModel";
 import { CreateRoamingRequestModel } from "api/repositories/packagesManagement/roamingManagement/model/createActions/CreateRoamingRequestModel";
 import { PartnerRoamingModel } from "api/repositories/packagesManagement/roamingManagement/model/RoamingManagementResponseModel";
 import {
@@ -46,7 +45,7 @@ export type ActionsComponentType<T extends Object> = {
   };
   placeholder?: string;
   options?: SelectOps[] | TreeSelectOps[] | MultiSelectOps[];
-  countries?: Array<CountryListResponseModel>;
+  // countries?: Array<CountryListResponseModel>;
   roamingPartners?: Array<PartnerRoamingModel>;
   colLg?: number;
 };
