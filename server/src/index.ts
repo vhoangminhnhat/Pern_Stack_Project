@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import express from "express";
+import articleRouter from "./routes/articleRoutes.js";
 import authRouter from "./routes/Authentication.js";
 import chatRouter from "./routes/ChatMessages.js";
 import myProfileRouter from "./routes/MyProfile.js";
@@ -11,6 +12,8 @@ dotenv.config();
 const app = express();
 
 app.use(cookieParser());
+
+app.use(getAppApiBase("article"), articleRouter);
 
 app.use(getAppApiBase("authen"), authRouter);
 
