@@ -5,7 +5,7 @@ import { LoginRequestModel } from "api/repositories/authentications/model/LoginR
 import SidebarLogo from "assets/images/hcmus.png";
 import LanguageSwitchingComponent from "components/languageSwitchingComponent/LanguageSwitchingComponent";
 import { AuthenticationContext } from "context/AuthenticationContext";
-import React, { useEffect } from "react";
+import React from "react";
 import { FaRegUser } from "react-icons/fa";
 import { IoLogIn } from "react-icons/io5";
 import { MdOutlineLockClock } from "react-icons/md";
@@ -34,8 +34,8 @@ const Login = ({ history }) => {
         password: value?.password,
       };
       const { data } = await defaultAuthenticationsRepository?.login(bodies);
-      localStorage.setItem("neci-cms-token", data.accessToken.id);
-      delete data.accessToken;
+      localStorage.setItem("thesis-cms-token", data.id);
+      delete data.id;
       await getRoles().then(() => {
         history.push("/personal/generals");
       });

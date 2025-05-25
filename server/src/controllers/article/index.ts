@@ -31,13 +31,11 @@ export const listArticles = async (req: IGetUserInfo, res: Response) => {
       prisma.article.count({ where: filters }),
     ]);
     return res.status(200).json({
-      data: {
-        data: articles,
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total,
-        },
+      data: articles,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
       },
       message: "Get article list successfully",
     });
@@ -71,9 +69,7 @@ export const createArticle = async (req: IGetUserInfo, res: Response) => {
       data: { name, code, url, file: filePath, userId: req.user.id },
     });
     return res.status(200).json({
-      data: {
-        data: article,
-      },
+      data: article,
       message: "Create article successfully",
     });
   } catch (error: any) {
@@ -110,9 +106,7 @@ export const updateArticle = async (req: IGetUserInfo, res: Response) => {
       data: { name, code, url, ...(filePath && { file: filePath }) },
     });
     return res.status(200).json({
-      data: {
-        data: article,
-      },
+      data: article,
       message: "Update article successfully",
     });
   } catch (error: any) {
@@ -140,9 +134,7 @@ export const deleteArticle = async (req: IGetUserInfo, res: Response) => {
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
     return res.status(200).json({
-      data: {
-        data: article,
-      },
+      data: article,
       message: "Delete article successfully",
     });
   } catch (error) {

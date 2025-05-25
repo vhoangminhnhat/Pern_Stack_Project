@@ -29,7 +29,7 @@ export const ContextProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserInfoResponseModel>({});
   const history = useHistory();
   const [info, setInfo] = useState("");
-  const token = localStorage.getItem("neci-cms-token");
+  const token = localStorage.getItem("thesis-cms-token");
   const [menuConfig, setMenuConfig] =
     useState<SidebarMenuConfigModel>(undefined);
   const [language, setLanguage] = useState<string>("vi");

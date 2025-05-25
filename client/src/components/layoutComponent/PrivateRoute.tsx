@@ -2,7 +2,7 @@ import { Redirect, Route } from "react-router-dom";
 import Main from "./Main";
 
 function PrivateRoute({ children, ...rest }) {
-  const token = localStorage.getItem("neci-cms-token");
+  const token = localStorage.getItem("thesis-cms-token");
 
   if (!token) return <Redirect to="/login" />;
 

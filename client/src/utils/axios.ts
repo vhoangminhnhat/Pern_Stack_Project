@@ -8,7 +8,7 @@ const api = axios.create({
 // Add a request interceptor
 api.interceptors.request.use(
   config => {
-    const token = localStorage.getItem('neci-cms-token');
+    const token = localStorage.getItem('thesis-cms-token');
     const request = config;
 
     if (token) {
@@ -35,7 +35,7 @@ api.interceptors.response.use(
     // Attempt to get the actual error returned from API
     const err = error.response || error;
     if (error?.response?.status === 403) {
-      if (!!localStorage.getItem('neci-cms-token')) {
+      if (!!localStorage.getItem('thesis-cms-token')) {
         localStorage.clear();
         window.location.href = '/login'; //relative to domain
       }

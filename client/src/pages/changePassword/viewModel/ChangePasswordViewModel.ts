@@ -47,7 +47,7 @@ const ChangePasswordViewModel = () => {
           localStrings.ChangePassword.Message.ChangePassSucceed,
           5
         );
-        localStorage.removeItem("neci-cms-token");
+        localStorage.removeItem("thesis-cms-token");
         history.push("/login");
       }
     } catch (err) {

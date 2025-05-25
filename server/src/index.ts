@@ -10,6 +10,7 @@ import { getAppApiBase } from "./utils/helpers.js";
 dotenv.config();
 
 const app = express();
+app.use(express.json());
 
 app.use(cookieParser());
 
@@ -21,6 +22,7 @@ app.use(getAppApiBase("chat-messages"), chatRouter);
 
 app.use(getAppApiBase("personal"), myProfileRouter);
 
+console.log('DATABASE_URL used by server:', process.env.DATABASE_URL);
 app.listen(5000, () => {
   console.log("Server is running on port 5000");
 });
