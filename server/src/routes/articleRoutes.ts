@@ -15,7 +15,7 @@ const articleRouter = Router();
 articleRouter.get("/", protectedRoutes as any, listArticles as any);
 articleRouter.get("/summarize", protectedRoutes as any, summarizeArticle as any);
 articleRouter.post(
-  "/",
+  "/create",
   protectedRoutes as any,
   upload.single("file"),
   createArticle as any

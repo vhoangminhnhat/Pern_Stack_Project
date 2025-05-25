@@ -15,16 +15,24 @@ const protectedRoutes = (
   next: NextFunction
 ) => {
   try {
-    let token = req.cookies.jwt;
-
-    if (!token && req.headers.authorization) {
+    let token;
+    if (req.headers.authorization) {
       const authHeader = req.headers.authorization;
+      console.log("Auth header:", authHeader);
       if (authHeader.startsWith("Bearer ")) {
         token = authHeader.substring(7); // Remove 'Bearer ' prefix
+        console.log("Extracted token from header:", token);
       }
     }
 
+    // Fall back to cookie if no token in header
     if (!token) {
+      token = req.cookies.jwt;
+      console.log("Cookie token:", token);
+    }
+
+    if (!token) {
+      console.log("No token found in either headers or cookies");
       return res.status(400).json({
         error: {
           code: 400,
@@ -34,12 +42,16 @@ const protectedRoutes = (
       });
     }
 
-    // Add logging to debug token
-    console.log('Received token:', token);
+    console.log("Final token being verified:", token);
+    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
-      
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+      ) as DecodedToken;
+      console.log("Token decoded successfully:", decoded);
+
       prisma.user
         .findUnique({
           where: { id: decoded.userId },
@@ -53,6 +65,7 @@ const protectedRoutes = (
         })
         .then((userInfo) => {
           if (!userInfo) {
+            console.log("User not found for ID:", decoded.userId);
             return res.status(400).json({
               error: {
                 code: 400,
@@ -61,14 +74,16 @@ const protectedRoutes = (
               message: "Get profile failed",
             });
           }
+          console.log("User found:", userInfo);
           req.user = userInfo;
           next();
         })
         .catch((error) => {
+          console.error("Database error:", error);
           next(error);
         });
     } catch (jwtError) {
-      console.error('JWT Verification Error:', jwtError);
+      console.error("JWT Verification Error:", jwtError);
       return res.status(401).json({
         error: {
           code: 401,
@@ -78,6 +93,7 @@ const protectedRoutes = (
       });
     }
   } catch (error) {
+    console.error("General error in protectedRoutes:", error);
     next(error);
   }
 };
