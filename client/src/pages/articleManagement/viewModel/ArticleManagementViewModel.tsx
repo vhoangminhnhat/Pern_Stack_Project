@@ -28,20 +28,14 @@ const ArticleManagementViewModel = () => {
   const fetchList = async (params: ArticleManagementRequestModel) => {
     try {
       setLoading(true);
-      setLits([
-        {
-          name: "DistB-VNET: Distributed Cluster-based Blockchain Vehicular Ad-Hoc Networks through SDN-NFV for Smart City",
-          code: "article_2412.04222",
-          createdAt: "08/12/2024",
-          source: "https://arxiv.org/abs/2412.04222",
-        },
-        {
-          name: "ChainGuard: A Blockchain-based Authentication and Access Control Scheme for Distributed Networks",
-          code: "article_2412.00677",
-          createdAt: "08/12/2024",
-          source: "https://arxiv.org/abs/2412.00677",
-        },
-      ]);
+      const response = await defaultArticleManagementRepository.getList({
+        ...params,
+        page: page,
+        limit: pageSize,
+      });
+      if (response?.data) {
+        setLits(response.data);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -55,7 +49,7 @@ const ArticleManagementViewModel = () => {
       const response =
         await defaultArticleManagementRepository.summarizeArticle({
           code: article?.code,
-          url: article?.source,
+          url: article?.url,
         });
 
       setSummary(response.data.summary);
@@ -93,7 +87,7 @@ const ArticleManagementViewModel = () => {
               className="flex justify-center items-center"
               icon={<CopyOutlined className="text-yellow-500" />}
               onClick={async () => {
-                await window?.navigator?.clipboard?.writeText(record?.source);
+                await window?.navigator?.clipboard?.writeText(record?.url);
                 setModal(true);
                 getMessage(
                   localStrings.FileManagement.Placeholder.Url,
@@ -115,7 +109,7 @@ const ArticleManagementViewModel = () => {
 
   useEffect(() => {
     fetchList({ page: 0, limit: 10 });
-  });
+  }, []);
   return {
     list,
     loading,

@@ -89,9 +89,9 @@ const UploadArticleFeature = (props: IUploadArticleFeature) => {
                 <input className="ant-input w-full" />
               </Form.Item>
               <Form.Item
-                label={localStrings.ArticleManagement.Labels.source}
+                label={localStrings.ArticleManagement.Labels.url}
                 name={"url"}
-                initialValue={detailInfo?.source}
+                initialValue={detailInfo?.url}
               >
                 <input className="ant-input w-full" />
               </Form.Item>

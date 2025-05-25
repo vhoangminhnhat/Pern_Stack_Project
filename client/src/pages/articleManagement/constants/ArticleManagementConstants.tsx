@@ -6,6 +6,7 @@ import { ActionsComponentType } from "components/generalComponents/actionsCompon
 import { FilterAttributes } from "components/generalComponents/filterComponents/model/FilterComponentsModel";
 import { SelectOps } from "components/generalComponents/selectComponent/model/SelectOpsModel";
 import { isEmpty } from "lodash";
+import moment from "moment";
 import { typeList } from "pages/fileManagement/constants/FileManagementConstants";
 import { strings } from "utils/localizedStrings";
 
@@ -38,6 +39,10 @@ export class ArticleManagementConstants {
           align: "center",
           dataIndex: key,
           key: `class-${key}`,
+          render: (text) =>
+            key === "createdAt"
+              ? moment(text).format("DD/MM/YYYY HH:mm:ss")
+              : text,
         };
       }
     ) as ColumnsType<ArticleManagementResponseModel>;
@@ -68,7 +73,7 @@ export class ArticleManagementConstants {
         defaultValue: localStrings.GlobalLabels.All,
         filterName: "type",
         filterType: "input",
-        labelName: localStrings.ArticleManagement.Labels.source,
+        labelName: localStrings.ArticleManagement.Labels.url,
         placeholder: localStrings.GlobalPlaceholder.Name,
       },
     ] as FilterAttributes[];

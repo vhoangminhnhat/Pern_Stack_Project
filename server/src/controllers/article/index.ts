@@ -129,7 +129,6 @@ export const deleteArticle = async (req: IGetUserInfo, res: Response) => {
       return getBaseErrorResponse({ code: 403, message: "Forbidden" }, res);
     }
     await prisma.article.delete({ where: { id } });
-    // Delete file if exists
     if (article.file) {
       const filePath = path.join(__dirname, "../../uploads", article.file);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
@@ -169,27 +168,54 @@ export const summarizeArticle = async (req: IGetUserInfo, res: Response) => {
     }
 
     try {
-      const response = await axios.post("http://localhost:11434/api/generate", {
-        model: "deepseek",
-        prompt: `Summarize this article for me: ${article.name}, url ${url}`,
+      const response = await axios.post("http://127.0.0.1:11434/api/generate", {
+        model: "deepseek-r1:1.5b",
+        prompt: `Please provide a concise summary of this academic article: ${article.name}. The article can be found at: ${url}. Focus on the main contributions, methodology, and key findings.`,
         stream: false,
       });
 
+      if (!response.data || !response.data.response) {
+        throw new Error("Invalid response from Ollama API");
+      }
+
+      const cleanSummary = response.data.response
+        .replace(/<think>/g, "")
+        .replace(/<\/think>/g, "")
+        .trim();
+
       return res.status(200).json({
         data: {
-          summary: response.data.response,
+          summary: cleanSummary,
           article: article,
         },
         message: "Article summarized successfully",
       });
-    } catch (ollamaError) {
-      console.error("Ollama API Error:", ollamaError);
+    } catch (ollamaError: any) {
+      try {
+        await axios.get("http://localhost:11434/api/tags");
+      } catch (e) {
+        return getBaseErrorResponse(
+          {
+            code: 503,
+            message:
+              "Ollama service is not running. Please start the Ollama service with 'ollama serve' command.",
+          },
+          res
+        );
+      }
+
       return getBaseErrorResponse(
-        { code: 500, message: "Failed to generate summary" },
+        {
+          code: 500,
+          message:
+            ollamaError.response?.data?.error ||
+            "Failed to generate summary. Please try again.",
+        },
         res
       );
     }
   } catch (error) {
+    console.error("General error in summarizeArticle:", error);
     return getBaseErrorResponse(error as ErrorModel, res);
   }
 };
