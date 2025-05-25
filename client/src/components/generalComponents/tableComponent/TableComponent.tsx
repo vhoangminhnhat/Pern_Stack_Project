@@ -2,6 +2,7 @@ import { LoadingOutlined } from "@ant-design/icons";
 import { Col, Spin, Table, Typography } from "antd";
 import { colorFormat } from "utils/format/ColorFormat";
 import { TableComponentModel } from "./model/TableComponentModel";
+import { JSX } from "react";
 
 const { Text } = Typography;
 

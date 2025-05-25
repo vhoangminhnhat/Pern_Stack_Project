@@ -6,11 +6,14 @@ import authRouter from "./routes/Authentication.js";
 import chatRouter from "./routes/ChatMessages.js";
 import myProfileRouter from "./routes/MyProfile.js";
 import { getAppApiBase } from "./utils/helpers.js";
+import cors from 'cors';
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+app.use(cors()); 
 
 app.use(cookieParser());
 

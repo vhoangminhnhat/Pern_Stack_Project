@@ -20,13 +20,13 @@ export const onLogin = async (
   res: Response<BaseApiResponseModel<UserResponseModel>>
 ) => {
   try {
-    const { password, userName } = req.body;
+    const { password, username } = req.body;
     const userInfo = await prisma.user.findUnique({
-      where: { username: userName },
+      where: { username: username },
     });
     const checkingPass = await bcryptjs.compare(password!, userInfo?.password!);
 
-    if (!userName || !password) {
+    if (!username || !password) {
       return res.status(400).json({
         message: "Login failed",
         error: {
@@ -47,9 +47,11 @@ export const onLogin = async (
     }
 
     generateTokens(userInfo?.id as string, res);
+    const userWithoutPassword = { ...userInfo };
+    delete userWithoutPassword.password;
 
     return res.status(200).json({
-      data: userInfo as UserResponseModel,
+      data: userWithoutPassword as UserResponseModel,
       message: "Login successfully",
     });
   } catch (error: unknown) {
