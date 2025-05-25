@@ -25,10 +25,8 @@ const protectedRoutes = (
       }
     }
 
-    // Fall back to cookie if no token in header
     if (!token) {
       token = req.cookies.jwt;
-      console.log("Cookie token:", token);
     }
 
     if (!token) {
@@ -42,15 +40,11 @@ const protectedRoutes = (
       });
     }
 
-    console.log("Final token being verified:", token);
-    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
-
     try {
       const decoded = jwt.verify(
         token,
         process.env.JWT_SECRET!
       ) as DecodedToken;
-      console.log("Token decoded successfully:", decoded);
 
       prisma.user
         .findUnique({
@@ -65,7 +59,6 @@ const protectedRoutes = (
         })
         .then((userInfo) => {
           if (!userInfo) {
-            console.log("User not found for ID:", decoded.userId);
             return res.status(400).json({
               error: {
                 code: 400,
