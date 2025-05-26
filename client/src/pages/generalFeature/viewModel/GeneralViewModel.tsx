@@ -1,9 +1,26 @@
 import { Form } from "antd";
+import { UserResponseModel } from "api/repositories/myProfile/models/UserResponseModel";
 import { myProfileRepository } from "api/repositories/myProfile/MyProfileRepository";
 import { useEffect, useState } from "react";
+import { FormattedUserData } from "../interfaces/IGeneralInfo";
 
 const GeneralViewModel = () => {
-  const [list, setList] = useState<Object>({});
+  const [list, setList] = useState<FormattedUserData>({
+    id: "",
+    username: "",
+    fullName: "",
+    gender: "male",
+    profileAvatar: "",
+    code: "",
+    birthDay: "",
+    placeOfOrigin: "",
+    identifyCard: "",
+    dateOfIssue: "",
+    placeOfIssue: "",
+    religion: "",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
   const [page, setPage] = useState<number>(0);
   const [form] = Form.useForm();
 
@@ -11,7 +28,7 @@ const GeneralViewModel = () => {
     try {
       const response = await myProfileRepository.getProfile();
       if (response.data) {
-        const formattedData = {
+        const formattedData: FormattedUserData = {
           ...response.data,
           birthDay: response.data.birthDay
             ? new Date(response.data.birthDay).toLocaleDateString("vi-VN")
@@ -28,15 +45,13 @@ const GeneralViewModel = () => {
     }
   };
 
-  const updateProfile = async (values: any) => {
+  const updateProfile = async (values: FormattedUserData) => {
     try {
-      const formattedValues = {
+      const formattedValues: Partial<UserResponseModel> = {
         ...values,
-        birthDay: values.birthDay
-          ? new Date(values.birthDay).toISOString()
-          : undefined,
+        birthDay: values.birthDay ? new Date(values.birthDay) : undefined,
         dateOfIssue: values.dateOfIssue
-          ? new Date(values.dateOfIssue).toISOString()
+          ? new Date(values.dateOfIssue)
           : undefined,
       };
 

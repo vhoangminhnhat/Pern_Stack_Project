@@ -1,14 +1,14 @@
-export class UserResponseModel {
+export interface FormattedUserData {
   id?: string;
   username?: string;
   fullName?: string;
   gender?: "male" | "female";
   profileAvatar?: string;
   code?: string;
-  birthDay?: Date;
+  birthDay?: string;
   placeOfOrigin?: string;
   identifyCard?: string;
-  dateOfIssue?: Date;
+  dateOfIssue?: string;
   placeOfIssue?: string;
   religion?: string;
   createdAt?: Date;

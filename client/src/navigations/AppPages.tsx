@@ -4,7 +4,7 @@ import { lazy } from "react";
 class AppPages {
   static PageKeys: Record<string, React.LazyExoticComponent<React.FC<any>>> = {
     GeneralsFeature: lazy(
-      () => import("pages/generalFeature/views/GeneralFeature")
+      () => import("pages/generalFeature/views/GeneralInfoFeature")
     ),
     ClassFeature: lazy(() => import("pages/classFeature/views/ClassFeature")),
     ArticleFeature: lazy(

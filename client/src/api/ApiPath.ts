@@ -4,6 +4,7 @@ export const API_PATH = {
   USER_INFO: getV1Path("personal/me"),
   LOGIN: getV1Path("authen/login"),
   CHANGE_PASS: getV1Path("user/change-password"),
+  UPDATE_INFO: getV1Path("personal/update-profile"),
 };
 
 export const CHAT_MESSAGE = {

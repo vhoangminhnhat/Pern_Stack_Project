@@ -1,4 +1,5 @@
-import { Col, Descriptions, Row } from "antd";
+import { Avatar, Col, Descriptions, Row } from "antd";
+import UserAvatar from "assets/images/default-avatar.png";
 import CardComponent from "components/generalComponents/cardComponent/CardComponent";
 import { AuthenticationContext } from "context/AuthenticationContext";
 import { Fragment } from "react";
@@ -6,47 +7,71 @@ import GeneralViewModel from "../viewModel/GeneralViewModel";
 
 const GeneralInfoFeature = () => {
   const { localStrings } = AuthenticationContext();
-  const { form, list, page } = GeneralViewModel();
+  const { form, list } = GeneralViewModel();
+  const displayFields = [
+    { key: "fullName", label: "Họ tên" },
+    { key: "code", label: "Mã số" },
+    { key: "birthDay", label: "Ngày sinh" },
+    { key: "placeOfOrigin", label: "Nơi sinh" },
+    { key: "gender", label: "Giới tính" },
+    { key: "identifyCard", label: "CMND/CCCD" },
+    { key: "dateOfIssue", label: "Ngày cấp" },
+    { key: "placeOfIssue", label: "Nơi cấp" },
+    { key: "religion", label: "Tôn giáo" },
+  ];
 
   return (
     <CardComponent
       data={{
         children: (
-          <>
-            <Row gutter={[5, 5]}>
-              <Col span={24}>
+          <div className="p-4">
+            <Row gutter={[24, 10]}>
+              <Col span={4} className="flex justify-center">
+                <Avatar
+                  size={100}
+                  src={UserAvatar}
+                  className="border-2 border-gray-200"
+                />
+              </Col>
+              <Col span={20}>
                 <Descriptions bordered={false} column={1}>
-                  {Object?.entries(list)?.map(([key, val]) => {
-                    if (key === "sex") {
+                  {displayFields.map(({ key, label }) => {
+                    if (!list[key]) return null;
+
+                    if (key === "gender") {
                       return (
                         <Descriptions.Item
-                          style={{ textAlign: "center" }}
-                          label={localStrings?.GeneralInfo?.Personal[key]}
+                          key={key}
+                          label={label}
+                          className="py-2"
                         >
-                          <span className="font-semibold italic">
-                            {val === 0
+                          <span className="font-medium text-gray-700">
+                            {list[key] === "male"
                               ? localStrings.GeneralInfo.Male
                               : localStrings.GeneralInfo.Female}
                           </span>
                         </Descriptions.Item>
                       );
-                    } else {
-                      return (
-                        <Descriptions.Item
-                          style={{ textAlign: "center" }}
-                          label={localStrings.GeneralInfo.Personal[key]}
-                        >
-                          <span className="font-semibold italic">{val}</span>
-                        </Descriptions.Item>
-                      );
                     }
+
+                    return (
+                      <Descriptions.Item
+                        key={key}
+                        label={label}
+                        className="py-2"
+                      >
+                        <span className="font-medium text-gray-700">
+                          {list[key]}
+                        </span>
+                      </Descriptions.Item>
+                    );
                   })}
                 </Descriptions>
               </Col>
             </Row>
-          </>
+          </div>
         ),
-        title: localStrings.TestSidebar.Personal.General,
+        title: "Thông tin cá nhân",
         extra: <Fragment key={0}></Fragment>,
       }}
     />

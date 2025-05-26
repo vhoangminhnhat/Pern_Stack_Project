@@ -1,19 +1,25 @@
-import { BaseApiResponseModel } from "api/models/BaseApiResponseModel";
-import { apiClient } from "api/services/ApiClient";
+import { API_PATH } from "api/ApiPath";
+import { BaseApiResponseModel } from "api/baseApiResponseModel/BaseApiResponseModel";
+import client from "api/client";
 import { UserResponseModel } from "./models/UserResponseModel";
 
-class MyProfileRepository {
+export interface IMyProfileRepository {
+  getProfile(): Promise<BaseApiResponseModel<UserResponseModel>>;
+  updateProfile(
+    data: Partial<UserResponseModel>
+  ): Promise<BaseApiResponseModel<UserResponseModel>>;
+}
+
+class MyProfileImpl implements IMyProfileRepository {
   async getProfile(): Promise<BaseApiResponseModel<UserResponseModel>> {
-    const response = await apiClient.get("/my-profile");
-    return response.data;
+    return await client?.get(API_PATH.USER_INFO);
   }
 
   async updateProfile(
     data: Partial<UserResponseModel>
   ): Promise<BaseApiResponseModel<UserResponseModel>> {
-    const response = await apiClient.put("/my-profile", data);
-    return response.data;
+    return await client?.put(API_PATH.USER_INFO, data);
   }
 }
 
-export const myProfileRepository = new MyProfileRepository();
+export const myProfileRepository = new MyProfileImpl();
