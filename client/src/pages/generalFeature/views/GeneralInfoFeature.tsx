@@ -1,10 +1,10 @@
-import { AuthenticationContext } from "context/AuthenticationContext";
-import React, { Fragment } from "react";
-import GeneralViewModel from "../viewModel/GeneralViewModel";
-import CardComponent from "components/generalComponents/cardComponent/CardComponent";
 import { Col, Descriptions, Row } from "antd";
+import CardComponent from "components/generalComponents/cardComponent/CardComponent";
+import { AuthenticationContext } from "context/AuthenticationContext";
+import { Fragment } from "react";
+import GeneralViewModel from "../viewModel/GeneralViewModel";
 
-const GeneralFeature = () => {
+const GeneralInfoFeature = () => {
   const { localStrings } = AuthenticationContext();
   const { form, list, page } = GeneralViewModel();
 
@@ -53,4 +53,4 @@ const GeneralFeature = () => {
   );
 };
 
-export default GeneralFeature;
+export default GeneralInfoFeature;

@@ -20,6 +20,13 @@ model User {
   password       String
   gender         Gender
   profileAvatar  String
+  code           String?         // Student/Employee code
+  birthDay       DateTime?       // Date of birth
+  placeOfOrigin  String?        // Place of origin
+  identifyCard   String?        // ID card number
+  dateOfIssue    DateTime?      // ID card issue date
+  placeOfIssue   String?        // ID card issue place
+  religion       String?        // Religion
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   conversationId String[]

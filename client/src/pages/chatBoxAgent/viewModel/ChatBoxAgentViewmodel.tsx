@@ -40,28 +40,56 @@ export const ChatBoxAgentViewmodel = () => {
   const handleSendMessage = async () => {
     if (!currentMessage.trim()) return;
 
+    const messageToSend = currentMessage;
+    setCurrentMessage(""); // Clear input immediately
+
+    const tempUserMessage: ChatMessageResponseModel = {
+      id: Date.now().toString(),
+      body: messageToSend,
+      isAI: false,
+      createdAt: new Date().toISOString(),
+    };
+
+    const tempAIMessage: ChatMessageResponseModel = {
+      id: (Date.now() + 1).toString(),
+      body: "",
+      isAI: true,
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, tempUserMessage, tempAIMessage]);
     setLoading(true);
+
     try {
       const response = await chatRepository.sendMessage({
-        message: currentMessage,
+        message: messageToSend,
       });
-      setMessages((prev) => [
-        ...prev,
-        response.data.userMessage,
-        response.data.aiMessage,
-      ]);
-      setCurrentMessage("");
+
+      // Replace temporary messages with actual messages
+      setMessages((prev) => {
+        const filteredMessages = prev.filter(
+          (msg) => msg.id !== tempUserMessage.id && msg.id !== tempAIMessage.id
+        );
+        return [
+          ...filteredMessages,
+          response.data.userMessage,
+          response.data.aiMessage,
+        ];
+      });
     } catch (error) {
       console.error("Error sending message:", error);
+      // Remove the temporary AI message on error
+      setMessages((prev) => prev.filter((msg) => msg.id !== tempAIMessage.id));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyPress = async (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      e.stopPropagation();
+      await handleSendMessage();
     }
   };
 

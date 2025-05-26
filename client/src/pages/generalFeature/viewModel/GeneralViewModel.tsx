@@ -1,34 +1,62 @@
-import { Form } from 'antd';
-import React, { useEffect, useState } from 'react'
+import { Form } from "antd";
+import { myProfileRepository } from "api/repositories/myProfile/MyProfileRepository";
+import { useEffect, useState } from "react";
 
 const GeneralViewModel = () => {
-    const [list, setList] = useState<Object>({});
-    const [page, setPage] = useState<number>(0);
-    const [form] = Form.useForm();
+  const [list, setList] = useState<Object>({});
+  const [page, setPage] = useState<number>(0);
+  const [form] = Form.useForm();
 
-    const fetchInfo = async () => {
-        setList({
-            fullName: "Đặng Lê Khoa",
-            code: "DTVT_0123",
-            birthDay: "01/01/2024",
-            placeOfOrigin: "Thành phố Hồ Chí Minh",
-            sex: 0,
-            identifyCard: "0909777788888",
-            dateOfIssue: "01/01/2022",
-            placeOfIssue: "Thành phố Hồ Chí Minh",
-            religion: "Không"
-        })
-    };
+  const fetchInfo = async () => {
+    try {
+      const response = await myProfileRepository.getProfile();
+      if (response.data) {
+        const formattedData = {
+          ...response.data,
+          birthDay: response.data.birthDay
+            ? new Date(response.data.birthDay).toLocaleDateString("vi-VN")
+            : "",
+          dateOfIssue: response.data.dateOfIssue
+            ? new Date(response.data.dateOfIssue).toLocaleDateString("vi-VN")
+            : "",
+        };
+        setList(formattedData);
+        form.setFieldsValue(formattedData);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
-    useEffect(() => {
-        fetchInfo()
-    }, []);
+  const updateProfile = async (values: any) => {
+    try {
+      const formattedValues = {
+        ...values,
+        birthDay: values.birthDay
+          ? new Date(values.birthDay).toISOString()
+          : undefined,
+        dateOfIssue: values.dateOfIssue
+          ? new Date(values.dateOfIssue).toISOString()
+          : undefined,
+      };
+
+      await myProfileRepository.updateProfile(formattedValues);
+      await fetchInfo(); // Refresh data after update
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInfo();
+  }, []);
 
   return {
     list,
     page,
-    form
-  }
-}
+    form,
+    updateProfile,
+  };
+};
 
-export default GeneralViewModel
+export default GeneralViewModel;

@@ -1,5 +1,5 @@
-import { SendOutlined } from "@ant-design/icons";
-import { Button, Input, Modal } from "antd";
+import { LoadingOutlined, SendOutlined } from "@ant-design/icons";
+import { Button, Input, Modal, Spin } from "antd";
 import { ChatMessageResponseModel } from "api/repositories/chat/models/ChatMessageResponseModel";
 import { ConversationResponseModel } from "api/repositories/chat/models/conversation/ConversationResponseModel";
 import { AuthenticationContext } from "context/AuthenticationContext";
@@ -83,16 +83,25 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
                     : "bg-blue-500 text-white shadow-md"
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap break-words">
-                  {message.body}
-                </p>
-                <p
-                  className={`text-xs mt-1 ${
-                    message.isAI ? "text-gray-500" : "text-blue-100"
-                  }`}
-                >
-                  {moment(message.createdAt).format("HH:mm")}
-                </p>
+                {message.isAI && !message.body ? (
+                  <div className="flex items-center gap-2">
+                    <Spin size="small" indicator={<LoadingOutlined />} />
+                    <span className="text-gray-500">AI is typing...</span>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {message.body}
+                    </p>
+                    <p
+                      className={`text-xs mt-1 ${
+                        message.isAI ? "text-gray-500" : "text-blue-100"
+                      }`}
+                    >
+                      {moment(message.createdAt).format("HH:mm")}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           ))}
@@ -102,7 +111,7 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
           <Input.TextArea
             value={currentMessage}
             onChange={(e) => setCurrentMessage(e.target.value)}
-            onKeyPress={onKeyPress}
+            onKeyDown={onKeyPress}
             placeholder="Type your message..."
             autoSize={{ minRows: 1, maxRows: 4 }}
             className="flex-1"
@@ -111,7 +120,6 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
             type="primary"
             icon={<SendOutlined />}
             onClick={handleSendMessage}
-            loading={isLoading}
           />
         </div>
       </div>

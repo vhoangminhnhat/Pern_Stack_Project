@@ -4,13 +4,13 @@ import PrivateRoute from "components/layoutComponent/PrivateRoute";
 import { AuthenticationContext } from "context/AuthenticationContext";
 import { focusHandling } from "cruip-js-toolkit";
 import AppPages from "navigations/AppPages";
-import GeneralFeature from "pages/generals/views/GeneralFeature";
+import ChangePasswordFeature from "pages/changePassword/views/ChangePasswordFeature";
+import GeneralInfoFeature from "pages/generalFeature/views/GeneralInfoFeature";
 import { ReactNode, Suspense, useEffect, useMemo } from "react";
 import { Redirect, Route, Switch, useLocation } from "react-router-dom";
 import { colorFormat } from "utils/format/ColorFormat";
 import Login from "./pages/login/Login";
 import NotFound from "./pages/notFound/NotFound";
-import ChangePasswordFeature from "pages/changePassword/views/ChangePasswordFeature";
 
 function App() {
   const location = useLocation();
@@ -100,7 +100,7 @@ function App() {
                 />
               }
             >
-              <GeneralFeature />
+              <GeneralInfoFeature />
             </Suspense>
           </PrivateRoute>
           <PrivateRoute exact path={"/change-password"} key={"changePass"}>

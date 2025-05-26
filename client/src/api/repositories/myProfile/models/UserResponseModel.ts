@@ -1,5 +1,3 @@
-import { $Enums } from "@prisma/client";
-
 export class UserResponseModel {
   constructor(
     public id: string,
@@ -7,7 +5,7 @@ export class UserResponseModel {
     public conversationId?: string[],
     public createdAt?: Date,
     public fullName?: string,
-    public gender?: $Enums.Gender,
+    public gender?: "male" | "female",
     public password?: string,
     public updatedAt?: Date,
     public username?: string,
