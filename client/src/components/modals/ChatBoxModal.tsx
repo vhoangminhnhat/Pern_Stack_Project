@@ -1,17 +1,22 @@
-import { LoadingOutlined, SendOutlined } from "@ant-design/icons";
-import { Button, Input, Modal, Spin } from "antd";
+import {
+  LoadingOutlined,
+  SendOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { Button, Input, Modal, Spin, Upload, message } from "antd";
+import type { UploadFile } from "antd/es/upload/interface";
 import { ChatMessageResponseModel } from "api/repositories/chat/models/ChatMessageResponseModel";
 import { ConversationResponseModel } from "api/repositories/chat/models/conversation/ConversationResponseModel";
 import { AuthenticationContext } from "context/AuthenticationContext";
 import moment from "moment";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface ChatBoxModalProps {
   show: boolean;
   close: () => void;
   messages: ChatMessageResponseModel[];
   isLoading: boolean;
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string, file?: File) => void;
   currentMessage: string;
   setCurrentMessage: (message: string) => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
@@ -33,6 +38,7 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
 }) => {
   const { localStrings } = AuthenticationContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -43,10 +49,39 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
   }, [messages]);
 
   const handleSendMessage = () => {
-    if (currentMessage.trim()) {
-      onSendMessage(currentMessage);
+    if (currentMessage.trim() || fileList.length > 0) {
+      onSendMessage(currentMessage, fileList[0]?.originFileObj);
       setCurrentMessage("");
+      setFileList([]);
     }
+  };
+
+  const beforeUpload = (file: File) => {
+    const isPDF = file.type === "application/pdf";
+    const isExcel =
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+    if (!isPDF && !isExcel) {
+      message.error("You can only upload PDF or Excel files!");
+      return false;
+    }
+
+    const isLt10M = file.size / 1024 / 1024 < 10;
+    if (!isLt10M) {
+      message.error("File must be smaller than 10MB!");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleFileChange = ({
+    fileList: newFileList,
+  }: {
+    fileList: UploadFile[];
+  }) => {
+    setFileList(newFileList);
   };
 
   return (
@@ -107,7 +142,16 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
           ))}
           <div ref={messagesEndRef} />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-end gap-2">
+          <Upload
+            beforeUpload={beforeUpload}
+            fileList={fileList}
+            onChange={handleFileChange}
+            maxCount={1}
+            showUploadList={true}
+          >
+            <Button icon={<UploadOutlined />} />
+          </Upload>
           <Input.TextArea
             value={currentMessage}
             onChange={(e) => setCurrentMessage(e.target.value)}

@@ -1,5 +1,7 @@
 import axios from "axios";
-import { Request, Response } from "express";
+import { Response } from "express";
+import pdfParse from "pdf-parse";
+import * as XLSX from "xlsx";
 import prisma from "../../../database/db.js";
 import { ErrorModel } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
 import { ChatMessageRequestModel } from "../../dtos/chatMessage/ChatMessageRequestModel.js";
@@ -8,13 +10,14 @@ import { getBaseErrorResponse } from "../../utils/helpers.js";
 
 export interface IChatMessageInfo extends IGetUserInfo {
   body: ChatMessageRequestModel;
+  file?: Express.Multer.File;
 }
 
 export class ChatMessageController {
   private static async getOrCreateAIUser() {
     const aiUser = await prisma.user.findFirst({
       where: {
-        username: "ai-assistant",
+        username: "AI Assistant",
       },
     });
 
@@ -24,9 +27,9 @@ export class ChatMessageController {
 
     return await prisma.user.create({
       data: {
-        username: "ai-assistant",
+        username: "AI Assistant",
         fullName: "AI Assistant",
-        password: "ai-assistant-password", // This won't be used for login
+        password: "ai_password",
         gender: "male",
         profileAvatar:
           "https://api.dicebear.com/7.x/bottts/svg?seed=ai-assistant",
@@ -34,51 +37,15 @@ export class ChatMessageController {
     });
   }
 
-  static async aiChatMessage(req: Request, res: Response) {
-    const { message } = req.body;
-    if (!message) {
-      return getBaseErrorResponse(
-        { code: 400, message: "Message is required" },
-        res
-      );
-    }
-    try {
-      const ollamaRes = await axios.post(
-        "http://127.0.0.1:11434/api/generate",
-        {
-          model: "deepseek-r1:1.5b",
-          messages: [{ role: "user", content: message }],
-        }
-      );
-
-      const aiResponseContent = (ollamaRes.data.response || "")
-        .replace(/<think>.*?<\/think>/gs, "")
-        .trim();
-      return res.status(200).json({
-        data: {
-          data: aiResponseContent,
-        },
-        message: "Get message successfully",
-      });
-    } catch (err) {
-      return getBaseErrorResponse(
-        {
-          code: 500,
-          message: err instanceof Error ? err.message : "Ollama error",
-        },
-        res
-      );
-    }
-  }
-
   static async aiConversation(req: IChatMessageInfo, res: Response) {
     try {
       const { message } = req.body;
+      const file = req.file;
       const senderId = req.user.id;
 
-      if (!message) {
+      if (!message && !file) {
         return getBaseErrorResponse(
-          { code: 400, message: "Message is required" },
+          { code: 400, message: "Message or file is required" },
           res
         );
       }
@@ -106,17 +73,38 @@ export class ChatMessageController {
       // Create user message
       const userMessage = await prisma.messages.create({
         data: {
-          body: message,
+          body: message || "Please analyze this document",
           senderId: senderId,
           conversationsId: conversation.id,
         },
       });
 
+      let prompt = message || "Summarize and analyze this document";
+      let fileContent = "";
+
+      if (file) {
+        if (file.mimetype === "application/pdf") {
+          const parsed = await pdfParse(file.buffer);
+          fileContent = parsed.text;
+        } else if (
+          file.mimetype ===
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ) {
+          const workbook = XLSX.read(file.buffer, { type: "buffer" });
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          fileContent = JSON.stringify(data, null, 2);
+        }
+
+        prompt = `${prompt}\n\nDocument content:\n${fileContent}`;
+      }
+
       const ollamaRes = await axios.post(
         "http://127.0.0.1:11434/api/generate",
         {
           model: "deepseek-r1:1.5b",
-          prompt: message,
+          prompt: prompt,
           stream: false,
         }
       );
@@ -124,6 +112,7 @@ export class ChatMessageController {
       const aiResponseContent = (ollamaRes.data.response || "")
         .replace(/<think>.*?<\/think>/gs, "")
         .trim();
+
       const aiMessage = await prisma.messages.create({
         data: {
           body: aiResponseContent,
@@ -145,16 +134,10 @@ export class ChatMessageController {
         },
         message: "Chat message sent successfully",
       });
-    } catch (err) {
-      console.error("Error in aiConversation:", err);
+    } catch (error) {
+      console.error("Error in aiConversation:", error);
       return getBaseErrorResponse(
-        {
-          code: 500,
-          message:
-            err instanceof Error
-              ? err.message
-              : "Failed to process chat message",
-        },
+        { code: 500, message: "Internal server error" },
         res
       );
     }
@@ -221,5 +204,4 @@ export class ChatMessageController {
   }
 }
 
-export const { aiChatMessage, aiConversation, listConversations } =
-  ChatMessageController;
+export const { aiConversation, listConversations } = ChatMessageController;

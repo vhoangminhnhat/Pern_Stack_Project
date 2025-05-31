@@ -37,10 +37,10 @@ export const ChatBoxAgentViewmodel = () => {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!currentMessage.trim()) return;
+  const handleSendMessage = async (message: string, file?: File) => {
+    if (!message.trim() && !file) return;
 
-    const messageToSend = currentMessage;
+    const messageToSend = message;
     setCurrentMessage(""); // Clear input immediately
 
     const tempUserMessage: ChatMessageResponseModel = {
@@ -61,9 +61,15 @@ export const ChatBoxAgentViewmodel = () => {
     setLoading(true);
 
     try {
-      const response = await chatRepository.sendMessage({
-        message: messageToSend,
-      });
+      const formData = new FormData();
+      if (messageToSend) {
+        formData.append("message", messageToSend);
+      }
+      if (file) {
+        formData.append("file", file);
+      }
+
+      const response = await chatRepository.sendMessage(formData);
 
       // Replace temporary messages with actual messages
       setMessages((prev) => {
@@ -89,7 +95,7 @@ export const ChatBoxAgentViewmodel = () => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       e.stopPropagation();
-      await handleSendMessage();
+      await handleSendMessage(currentMessage);
     }
   };
 

@@ -17,31 +17,38 @@ export interface IChatRepository {
   ): Promise<BaseApiResponseModel<ChatMessageResponseModel[]>>;
 
   sendMessage(
-    body: ChatMessageRequestModel
+    body: ChatMessageRequestModel | FormData
   ): Promise<BaseApiResponseModel<SendMessageResponseModel>>;
 }
 
-class ChatImpl implements IChatRepository {
+class ChatRepository implements IChatRepository {
   async listConversations(params: {
     page?: number;
     limit?: number;
   }): Promise<BaseApiResponseModel<ConversationResponseModel[]>> {
-    return await client.get(CHAT_MESSAGE.CONVERSATIONS, params);
+    return await client.get(CHAT_MESSAGE.CONVERSATIONS, { params });
   }
 
   async getMessages(
     conversationId: string
   ): Promise<BaseApiResponseModel<ChatMessageResponseModel[]>> {
-    return await client.get(
-      `${CHAT_MESSAGE.MESSAGES}/${conversationId}`
-    );
+    return await client.get(`${CHAT_MESSAGE.MESSAGES}/${conversationId}`);
   }
 
   async sendMessage(
-    body: ChatMessageRequestModel
+    body: ChatMessageRequestModel | FormData
   ): Promise<BaseApiResponseModel<SendMessageResponseModel>> {
-    return await client.post(CHAT_MESSAGE.AI_CONVERSATION, body);
+    const config =
+      body instanceof FormData
+        ? {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        : {};
+
+    return await client.post(CHAT_MESSAGE.AI_CONVERSATION, body, config);
   }
 }
 
-export const chatRepository: IChatRepository = new ChatImpl();
+export const chatRepository = new ChatRepository();
