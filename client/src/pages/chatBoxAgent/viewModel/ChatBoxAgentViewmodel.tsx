@@ -66,10 +66,7 @@ export const ChatBoxAgentViewmodel = () => {
       if (file) {
         formData.append("file", file);
       }
-
       const response = await chatRepository.sendMessage(formData);
-
-      // Replace temporary messages with actual messages
       setMessages((prev) => {
         const filteredMessages = prev.filter(
           (msg) => msg.id !== tempUserMessage.id && msg.id !== tempAIMessage.id
@@ -82,7 +79,6 @@ export const ChatBoxAgentViewmodel = () => {
       });
     } catch (error) {
       console.error("Error sending message:", error);
-      // Remove the temporary AI message on error
       setMessages((prev) => prev.filter((msg) => msg.id !== tempAIMessage.id));
     } finally {
       setLoading(false);

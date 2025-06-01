@@ -4,27 +4,25 @@ import { PDFExtract } from "pdf.js-extract";
 import * as XLSX from "xlsx";
 import prisma from "../../../database/db.js";
 import { ErrorModel } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
-import { ChatMessageRequestModel } from "../../dtos/chatMessage/ChatMessageRequestModel.js";
+import {
+  AiConversationRequestModel,
+  ChatMessageRequestModel,
+} from "../../dtos/chatMessage/ChatMessageRequestModel.js";
 import { IGetUserInfo } from "../../middlewares/protectedRoutes.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
 
-export interface IChatMessageInfo extends IGetUserInfo {
-  body: ChatMessageRequestModel;
-  file?: Express.Multer.File;
-}
+// interface PDFPage {
+//   content: Array<{
+//     str: string;
+//     [key: string]: any;
+//   }>;
+//   [key: string]: any;
+// }
 
-interface PDFPage {
-  content: Array<{
-    str: string;
-    [key: string]: any;
-  }>;
-  [key: string]: any;
-}
-
-interface PDFData {
-  pages: PDFPage[];
-  [key: string]: any;
-}
+// interface PDFData {
+//   pages: PDFPage[];
+//   [key: string]: any;
+// }
 
 export class ChatMessageController {
   private static async getOrCreateAIUser() {
@@ -50,9 +48,12 @@ export class ChatMessageController {
     });
   }
 
-  static async aiConversation(req: IChatMessageInfo, res: Response) {
+  static async aiConversation(
+    req: IGetUserInfo & AiConversationRequestModel,
+    res: Response
+  ) {
     try {
-      const { message } = req.body;
+      const { message } = req.body as ChatMessageRequestModel;
       const file = req.file;
       const senderId = req.user.id;
 
@@ -83,7 +84,6 @@ export class ChatMessageController {
         });
       }
 
-      // Create user message
       const userMessage = await prisma.messages.create({
         data: {
           body: message || "Please analyze this document",
@@ -100,14 +100,9 @@ export class ChatMessageController {
           try {
             const pdfExtract = new PDFExtract();
             const options = {};
-            const data = (await pdfExtract.extractBuffer(
-              file.buffer,
-              options
-            )) as PDFData;
+            const data = await pdfExtract.extractBuffer(file.buffer, options);
             fileContent = data.pages
-              .map((page: PDFPage) =>
-                page.content.map((item) => item.str).join(" ")
-              )
+              .map((page) => page.content.map((item) => item.str).join(" "))
               .join("\n");
           } catch (error) {
             console.error("Error parsing PDF:", error);
