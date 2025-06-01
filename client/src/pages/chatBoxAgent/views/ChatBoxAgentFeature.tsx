@@ -15,6 +15,7 @@ const ChatBoxAgentFeature = () => {
     loadMessages,
     loading,
     setIsModalVisible,
+    setMessages,
   } = ChatBoxAgentViewmodel();
 
   const handleClick = () => {
@@ -34,6 +35,7 @@ const ChatBoxAgentFeature = () => {
         show={isModalVisible}
         close={() => setIsModalVisible(false)}
         messages={messages}
+        setMessages={setMessages}
         isLoading={loading}
         onSendMessage={handleSendMessage}
         currentMessage={currentMessage}

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Response } from "express";
-import pdfParse from "pdf-parse";
+import { PDFExtract } from "pdf.js-extract";
 import * as XLSX from "xlsx";
 import prisma from "../../../database/db.js";
 import { ErrorModel } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
@@ -11,6 +11,19 @@ import { getBaseErrorResponse } from "../../utils/helpers.js";
 export interface IChatMessageInfo extends IGetUserInfo {
   body: ChatMessageRequestModel;
   file?: Express.Multer.File;
+}
+
+interface PDFPage {
+  content: Array<{
+    str: string;
+    [key: string]: any;
+  }>;
+  [key: string]: any;
+}
+
+interface PDFData {
+  pages: PDFPage[];
+  [key: string]: any;
 }
 
 export class ChatMessageController {
@@ -84,8 +97,29 @@ export class ChatMessageController {
 
       if (file) {
         if (file.mimetype === "application/pdf") {
-          const parsed = await pdfParse(file.buffer);
-          fileContent = parsed.text;
+          try {
+            const pdfExtract = new PDFExtract();
+            const options = {};
+            const data = (await pdfExtract.extractBuffer(
+              file.buffer,
+              options
+            )) as PDFData;
+            fileContent = data.pages
+              .map((page: PDFPage) =>
+                page.content.map((item) => item.str).join(" ")
+              )
+              .join("\n");
+          } catch (error) {
+            console.error("Error parsing PDF:", error);
+            return getBaseErrorResponse(
+              {
+                code: 400,
+                message:
+                  "Failed to parse PDF file. Please ensure it's a valid PDF.",
+              },
+              res
+            );
+          }
         } else if (
           file.mimetype ===
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

@@ -40,7 +40,7 @@ export const ChatBoxAgentViewmodel = () => {
   const handleSendMessage = async (message: string, file?: File) => {
     if (!message.trim() && !file) return;
 
-    const messageToSend = message;
+    const messageToSend = message || "Please analyze this document";
     setCurrentMessage(""); // Clear input immediately
 
     const tempUserMessage: ChatMessageResponseModel = {
@@ -62,9 +62,7 @@ export const ChatBoxAgentViewmodel = () => {
 
     try {
       const formData = new FormData();
-      if (messageToSend) {
-        formData.append("message", messageToSend);
-      }
+      formData.append("message", messageToSend);
       if (file) {
         formData.append("file", file);
       }
@@ -110,6 +108,7 @@ export const ChatBoxAgentViewmodel = () => {
     handleSendMessage,
     handleKeyPress,
     loadMessages,
+    setMessages,
   };
 };
 

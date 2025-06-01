@@ -15,6 +15,7 @@ interface ChatBoxModalProps {
   show: boolean;
   close: () => void;
   messages: ChatMessageResponseModel[];
+  setMessages?: (messages: ChatMessageResponseModel[]) => void;
   isLoading: boolean;
   onSendMessage: (message: string, file?: File) => void;
   currentMessage: string;
@@ -28,6 +29,7 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
   show,
   close,
   messages,
+  setMessages,
   isLoading,
   onSendMessage,
   currentMessage,
@@ -82,6 +84,16 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
     fileList: UploadFile[];
   }) => {
     setFileList(newFileList);
+    if (newFileList.length > 0 && setMessages) {
+      // Add a temporary message for the file
+      const fileMessage: ChatMessageResponseModel = {
+        id: Date.now().toString(),
+        body: `📄 ${newFileList[0].name}`,
+        isAI: false,
+        createdAt: new Date().toISOString(),
+      };
+      setMessages([...messages, fileMessage]);
+    }
   };
 
   return (
@@ -148,7 +160,12 @@ const ChatBoxModal: React.FC<ChatBoxModalProps> = ({
             fileList={fileList}
             onChange={handleFileChange}
             maxCount={1}
-            showUploadList={true}
+            showUploadList={false}
+            customRequest={({ onSuccess }) => {
+              setTimeout(() => {
+                onSuccess?.("ok");
+              }, 0);
+            }}
           >
             <Button icon={<UploadOutlined />} />
           </Upload>
