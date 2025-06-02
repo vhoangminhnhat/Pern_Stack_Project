@@ -62,9 +62,33 @@ export class ArticleController {
           res
         );
       }
+
+      // Check if article with code already exists
+      const existingArticle = await prisma.article.findFirst({
+        where: { code, userId },
+      });
+
+      if (existingArticle) {
+        return getBaseErrorResponse(
+          { code: 400, message: "Article with this code already exists" },
+          res
+        );
+      }
+
       let filePath = undefined;
       const file = (req as Request & { file?: Express.Multer.File }).file;
       if (file) {
+        // Validate file type
+        if (
+          file.mimetype !== "application/pdf" &&
+          file.mimetype !==
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ) {
+          return getBaseErrorResponse(
+            { code: 400, message: "Only PDF and XLSX files are allowed" },
+            res
+          );
+        }
         filePath = file.filename;
       }
       const article = await prisma.article.create({
@@ -87,26 +111,50 @@ export class ArticleController {
 
   async updateArticle(req: IGetUserInfo, res: Response) {
     try {
-      const { id } = req.params;
-      const { name, code, url } = req.body;
+      const { code } = req.params;
+      const { name, url } = req.body;
       let filePath = undefined;
       const file = (req as Request & { file?: Express.Multer.File }).file;
-      // Only update if the article belongs to the user
-      const old = await prisma.article.findUnique({ where: { id } });
-      if (!old || old.userId !== req.user.id) {
-        return getBaseErrorResponse({ code: 403, message: "Forbidden" }, res);
+
+      // Find article by code and user
+      const old = await prisma.article.findFirst({
+        where: {
+          code,
+          userId: req.user.id,
+        },
+      });
+
+      if (!old) {
+        return getBaseErrorResponse(
+          { code: 404, message: "Article not found" },
+          res
+        );
       }
+
       if (file) {
+        // Validate file type
+        if (
+          file.mimetype !== "application/pdf" &&
+          file.mimetype !==
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ) {
+          return getBaseErrorResponse(
+            { code: 400, message: "Only PDF and XLSX files are allowed" },
+            res
+          );
+        }
         filePath = file.filename;
         if (old.file) {
           const oldPath = path.join(__dirname, "../../uploads", old.file);
           if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
         }
       }
+
       const article = await prisma.article.update({
-        where: { id },
-        data: { name, code, url, ...(filePath && { file: filePath }) },
+        where: { id: old.id },
+        data: { name, url, ...(filePath && { file: filePath }) },
       });
+
       return res.status(200).json({
         data: article,
         message: "Update article successfully",
@@ -124,12 +172,22 @@ export class ArticleController {
 
   async deleteArticle(req: IGetUserInfo, res: Response) {
     try {
-      const { id } = req.params;
-      const article = await prisma.article.findUnique({ where: { id } });
-      if (!article || article.userId !== req.user.id) {
-        return getBaseErrorResponse({ code: 403, message: "Forbidden" }, res);
+      const { code } = req.params;
+      const article = await prisma.article.findFirst({
+        where: {
+          code,
+          userId: req.user.id,
+        },
+      });
+
+      if (!article) {
+        return getBaseErrorResponse(
+          { code: 404, message: "Article not found" },
+          res
+        );
       }
-      await prisma.article.delete({ where: { id } });
+
+      await prisma.article.delete({ where: { id: article.id } });
       if (article.file) {
         const filePath = path.join(__dirname, "../../uploads", article.file);
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
@@ -145,11 +203,18 @@ export class ArticleController {
 
   async summarizeArticle(req: IGetUserInfo, res: Response) {
     try {
-      const { code, url } = req.query;
+      const { code, url, type } = req.query;
 
       if (!code || !url) {
         return getBaseErrorResponse(
           { code: 400, message: "Code and URL are required" },
+          res
+        );
+      }
+
+      if (!type || (type !== "summary" && type !== "relation")) {
+        return getBaseErrorResponse(
+          { code: 400, message: "Type must be summary or relation" },
           res
         );
       }
@@ -169,11 +234,13 @@ export class ArticleController {
       }
 
       try {
+        let summarizedPrompt = `Please provide a concise summary of this academic article: ${article.name}. The article can be found at: ${url}. Focus on the main contributions, methodology, and key findings.`;
+        let relationPrompt = `Please provide a list of related articles to this academic article: ${article.name}. The article can be found at: ${url}.`;
         const response = await axios.post(
           "http://127.0.0.1:11434/api/generate",
           {
             model: "deepseek-r1:1.5b",
-            prompt: `Please provide a concise summary of this academic article: ${article.name}. The article can be found at: ${url}. Focus on the main contributions, methodology, and key findings.`,
+            prompt: type === "summary" ? summarizedPrompt : relationPrompt,
             stream: false,
           }
         );
