@@ -28,7 +28,7 @@ const UploadReplaceFilesFeature = (props: IUploadReplaceFiles) => {
     <Modal
       open={detailModal}
       centered
-      destroyOnClose
+      destroyOnHidden
       footer={null}
       title={
         isEmpty(detailInfo)

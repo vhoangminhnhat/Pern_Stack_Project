@@ -2,6 +2,7 @@ import { chatRepository } from "api/repositories/chat/ChatRepository";
 import { ChatMessageResponseModel } from "api/repositories/chat/models/ChatMessageResponseModel";
 import { ConversationResponseModel } from "api/repositories/chat/models/conversation/ConversationResponseModel";
 import { useEffect, useState } from "react";
+import { getMessage } from "utils/helpersInTs/helpersInTs";
 
 export const ChatBoxAgentViewmodel = () => {
   const [messages, setMessages] = useState<ChatMessageResponseModel[]>([]);
@@ -61,12 +62,18 @@ export const ChatBoxAgentViewmodel = () => {
     setLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("message", messageToSend);
+      let response;
       if (file) {
+        const formData = new FormData();
+        formData.append("message", messageToSend);
         formData.append("file", file);
+        response = await chatRepository.sendFileMessage(formData);
+      } else {
+        response = await chatRepository.sendChatMessage({
+          message: messageToSend,
+        });
       }
-      const response = await chatRepository.sendMessage(formData);
+
       setMessages((prev) => {
         const filteredMessages = prev.filter(
           (msg) => msg.id !== tempUserMessage.id && msg.id !== tempAIMessage.id
@@ -77,9 +84,16 @@ export const ChatBoxAgentViewmodel = () => {
           response.data.aiMessage,
         ];
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error sending message:", error);
       setMessages((prev) => prev.filter((msg) => msg.id !== tempAIMessage.id));
+
+      // Show error message to user
+      if (error.message) {
+        getMessage(error.message, 4, "error");
+      } else {
+        getMessage("Failed to send message. Please try again.", 4, "error");
+      }
     } finally {
       setLoading(false);
     }

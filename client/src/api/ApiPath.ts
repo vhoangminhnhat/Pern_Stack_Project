@@ -112,11 +112,11 @@ export const TRAVEL_SIM = {
 };
 
 export const ARTICLE_MANAGEMENT = {
-  LIST: getV1Path("articles"),
-  SUMMARIZE: getV1Path("articles/summarize"),
-  CREATE: getV1Path("articles/create"),
-  UPDATE: getV1Path("articles/update"),
-  DELETE: getV1Path("articles/delete"),
+  LIST: getV1Path("article"),
+  SUMMARIZE: getV1Path("article/summarize"),
+  CREATE: getV1Path("article/create"),
+  UPDATE: getV1Path("article/update"),
+  DELETE: getV1Path("article/delete"),
 };
 
 export const TOOLS = {

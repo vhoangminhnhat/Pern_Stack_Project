@@ -116,7 +116,6 @@ export class ArticleController {
       let filePath = undefined;
       const file = (req as Request & { file?: Express.Multer.File }).file;
 
-      // Find article by code and user
       const old = await prisma.article.findFirst({
         where: {
           code,
@@ -132,7 +131,6 @@ export class ArticleController {
       }
 
       if (file) {
-        // Validate file type
         if (
           file.mimetype !== "application/pdf" &&
           file.mimetype !==
@@ -234,8 +232,49 @@ export class ArticleController {
       }
 
       try {
-        let summarizedPrompt = `Please provide a concise summary of this academic article: ${article.name}. The article can be found at: ${url}. Focus on the main contributions, methodology, and key findings.`;
-        let relationPrompt = `Please provide a list of related articles to this academic article: ${article.name}. The article can be found at: ${url}.`;
+        let summarizedPrompt = `As an academic research analyst, please provide a comprehensive analysis of the following academic article:
+
+Article Title: ${article.name}
+Article URL: ${url}
+
+Please structure your analysis in the following sections:
+
+1. Executive Summary (2-3 sentences)
+   - Main research question or objective
+   - Key findings or conclusions
+
+2. Methodology Overview
+   - Research approach
+   - Data collection methods
+   - Analysis techniques used
+
+3. Key Contributions
+   - Main theoretical contributions
+   - Practical implications
+   - Novel approaches or findings
+
+4. Critical Analysis
+   - Strengths of the research
+   - Potential limitations
+   - Areas for future research
+
+Please ensure your analysis is clear, concise, and maintains academic rigor while being accessible to readers.`;
+        let relationPrompt = `As an academic research assistant, please analyze the following article and suggest related academic works:
+
+Article Title: ${article.name}
+Article URL: ${url}
+
+Please provide a list of related articles that:
+1. Share similar research methodologies or approaches
+2. Cover related topics or themes
+3. Build upon or extend the findings
+4. Present alternative viewpoints or contrasting perspectives
+5. Are from the same field of study
+
+For each related article suggestion, please explain briefly why it's relevant to the original article.
+
+Format your response as a structured list with clear explanations for each recommendation.`;
+        console.log(url);
         const response = await axios.post(
           "http://127.0.0.1:11434/api/generate",
           {

@@ -58,11 +58,11 @@ articleRouter.post(
   createArticle as any
 );
 articleRouter.put(
-  "/:id",
+  "/update",
   protectedRoutes as any,
   upload.single("file"),
   updateArticle as any
 );
-articleRouter.delete("/:id", protectedRoutes as any, deleteArticle as any);
+articleRouter.delete("/delete", protectedRoutes as any, deleteArticle as any);
 
 export default articleRouter;

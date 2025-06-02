@@ -104,6 +104,8 @@ export class ChatMessageController {
             fileContent = data.pages
               .map((page) => page.content.map((item) => item.str).join(" "))
               .join("\n");
+
+            prompt = `${prompt}\n\nDocument: ${file.originalname}\n\nContent:\n${fileContent}`;
           } catch (error) {
             console.error("Error parsing PDF:", error);
             return getBaseErrorResponse(
@@ -124,9 +126,15 @@ export class ChatMessageController {
           const worksheet = workbook.Sheets[sheetName];
           const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
           fileContent = JSON.stringify(data, null, 2);
+          prompt = `${prompt}\n\nDocument: ${file.originalname}\n\nContent:\n${fileContent}`;
         }
 
-        prompt = `${prompt}\n\nDocument content:\n${fileContent}`;
+        // Ensure the prompt is not too long for Ollama
+        if (prompt.length > 4000) {
+          prompt =
+            prompt.substring(0, 4000) +
+            "...\n[Content truncated due to length]";
+        }
       }
 
       const ollamaRes = await axios.post(

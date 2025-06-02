@@ -8,6 +8,7 @@ import type { UploadFile } from "antd/es/upload/interface";
 import { ChatMessageResponseModel } from "api/repositories/chat/models/ChatMessageResponseModel";
 import { ConversationResponseModel } from "api/repositories/chat/models/conversation/ConversationResponseModel";
 import { AuthenticationContext } from "context/AuthenticationContext";
+import { isEmpty } from "lodash";
 import moment from "moment";
 import React, {
   Dispatch,
@@ -45,6 +46,7 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
   const { localStrings } = AuthenticationContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [fileName, setFileName] = useState<string>("");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,7 +58,11 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
 
   const handleSendMessage = () => {
     if (currentMessage.trim() || fileList.length > 0) {
-      onSendMessage(currentMessage, fileList[0]?.originFileObj);
+      const file = fileList[0]?.originFileObj;
+      if (file && !beforeUpload(file)) {
+        return;
+      }
+      onSendMessage(currentMessage, file);
       setCurrentMessage("");
       setFileList([]);
     }
@@ -79,24 +85,35 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
       return false;
     }
 
+    // Check if file is empty
+    if (file.size === 0) {
+      getMessage("Cannot upload empty file!", 5, "error");
+      return false;
+    }
+
     return true;
   };
 
   const handleFileChange = ({
     fileList: newFileList,
+    file,
   }: {
     fileList: UploadFile[];
+    file: UploadFile;
   }) => {
-    setFileList(newFileList);
-    if (newFileList.length > 0 && setMessages) {
-      const fileMessage: ChatMessageResponseModel = {
-        id: Date.now().toString(),
-        body: `📄 ${newFileList[0].name}`,
-        isAI: false,
-        createdAt: new Date().toISOString(),
-      };
-      setMessages([...messages, fileMessage]);
+    const fileObj = file.originFileObj;
+    if (!fileObj) return;
+    setFileName(file.name);
+    if (setMessages && file.name) {
+      setMessages((prev) => [...prev]);
     }
+
+    if (!beforeUpload(fileObj)) {
+      setFileList([]);
+      return;
+    }
+    onSendMessage("", fileObj);
+    setFileList([]);
   };
 
   return (
@@ -143,6 +160,13 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
                     <p className="text-sm whitespace-pre-wrap break-words">
                       {message.body}
                     </p>
+
+                    {!message.isAI && !isEmpty(fileName) && (
+                      <div className="mt-2 bg-white text-black p-2 rounded shadow-sm">
+                        📄 <span className="font-medium">{fileName}</span>
+                      </div>
+                    )}
+
                     <p
                       className={`text-xs mt-1 ${
                         message.isAI ? "text-gray-500" : "text-blue-100"
@@ -164,6 +188,7 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
             onChange={handleFileChange}
             maxCount={1}
             showUploadList={false}
+            accept=".pdf,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             customRequest={({ onSuccess }) => {
               setTimeout(() => {
                 onSuccess?.("ok");
@@ -174,7 +199,10 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
           </Upload>
           <Input.TextArea
             value={currentMessage}
-            onChange={(e) => setCurrentMessage(e.target.value)}
+            onChange={(e) => {
+              setFileName("");
+              setCurrentMessage(e.target.value);
+            }}
             onKeyDown={onKeyPress}
             placeholder="Type your message..."
             autoSize={{ minRows: 1, maxRows: 4 }}
@@ -183,7 +211,9 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
           <Button
             type="primary"
             icon={<SendOutlined />}
-            onClick={handleSendMessage}
+            onClick={() => {
+              handleSendMessage();
+            }}
           />
         </div>
       </div>

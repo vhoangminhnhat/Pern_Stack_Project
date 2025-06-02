@@ -3,6 +3,7 @@ export class ChatMessageResponseModel {
   conversationsId?: string;
   senderId?: string;
   body?: string;
+  fileName?: string;
   createdAt?: string;
   updatedAt?: string;
   isAI?: boolean;

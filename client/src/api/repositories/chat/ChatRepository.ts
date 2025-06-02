@@ -16,8 +16,12 @@ export interface IChatRepository {
     conversationId: string
   ): Promise<BaseApiResponseModel<ChatMessageResponseModel[]>>;
 
-  sendMessage(
-    body: ChatMessageRequestModel | FormData
+  sendChatMessage(
+    body: ChatMessageRequestModel
+  ): Promise<BaseApiResponseModel<SendMessageResponseModel>>;
+
+  sendFileMessage(
+    formData: FormData
   ): Promise<BaseApiResponseModel<SendMessageResponseModel>>;
 }
 
@@ -35,19 +39,53 @@ class ChatRepository implements IChatRepository {
     return await client.get(`${CHAT_MESSAGE.MESSAGES}/${conversationId}`);
   }
 
-  async sendMessage(
-    body: ChatMessageRequestModel | FormData
+  async sendChatMessage(
+    body: ChatMessageRequestModel
   ): Promise<BaseApiResponseModel<SendMessageResponseModel>> {
-    const config =
-      body instanceof FormData
-        ? {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        : {};
+    try {
+      return await client.post(CHAT_MESSAGE.AI_CONVERSATION, body);
+    } catch (error: any) {
+      if (error?.response?.data?.error?.message) {
+        throw new Error(error.response.data.error.message);
+      }
+      throw new Error("Failed to send message. Please try again.");
+    }
+  }
 
-    return await client.post(CHAT_MESSAGE.AI_CONVERSATION, body, config);
+  async sendFileMessage(
+    formData: FormData
+  ): Promise<BaseApiResponseModel<SendMessageResponseModel>> {
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      timeout: 30000, // 30 seconds timeout for file uploads
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round(
+          (progressEvent.loaded * 100) / (progressEvent.total || 1)
+        );
+        console.log(`Upload Progress: ${percentCompleted}%`);
+      },
+    };
+
+    try {
+      return await client.post(CHAT_MESSAGE.AI_CONVERSATION, formData, config);
+    } catch (error: any) {
+      if (error?.response?.status === 413) {
+        throw new Error(
+          "File size is too large. Please upload a smaller file."
+        );
+      }
+      if (error?.message?.includes("timeout")) {
+        throw new Error(
+          "Request timeout. The file might be too large or the server is taking too long to respond."
+        );
+      }
+      if (error?.response?.data?.error?.message) {
+        throw new Error(error.response.data.error.message);
+      }
+      throw new Error("Failed to send message. Please try again.");
+    }
   }
 }
 
