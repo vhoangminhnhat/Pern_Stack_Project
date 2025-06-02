@@ -25,7 +25,7 @@ interface IChatBoxModal {
   messages: ChatMessageResponseModel[];
   setMessages?: Dispatch<SetStateAction<ChatMessageResponseModel[]>>;
   isLoading: boolean;
-  onSendMessage: (message: string, file?: File) => void;
+  onSendMessage: (message: string, file?: File, filename?: string) => void;
   currentMessage: string;
   setCurrentMessage: Dispatch<SetStateAction<string>>;
   onKeyPress: (e: React.KeyboardEvent) => void;
@@ -57,6 +57,7 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
   }, [messages]);
 
   const handleSendMessage = () => {
+    setFileName("");
     if (currentMessage.trim() || fileList.length > 0) {
       const file = fileList[0]?.originFileObj;
       if (file && !beforeUpload(file)) {
@@ -103,16 +104,12 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
   }) => {
     const fileObj = file.originFileObj;
     if (!fileObj) return;
-    setFileName(file.name);
-    if (setMessages && file.name) {
-      setMessages((prev) => [...prev]);
-    }
 
     if (!beforeUpload(fileObj)) {
       setFileList([]);
       return;
     }
-    onSendMessage("", fileObj);
+    onSendMessage("", fileObj, file.name as string);
     setFileList([]);
   };
 
@@ -161,10 +158,15 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
                       {message.body}
                     </p>
 
-                    {!message.isAI && !isEmpty(fileName) && (
+                    {message.isAI == false && !isEmpty(message.fileName) ? (
                       <div className="mt-2 bg-white text-black p-2 rounded shadow-sm">
-                        📄 <span className="font-medium">{fileName}</span>
+                        📄{" "}
+                        <span className="font-medium text-black">
+                          {message.fileName}
+                        </span>
                       </div>
+                    ) : (
+                      <></>
                     )}
 
                     <p
@@ -199,10 +201,7 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
           </Upload>
           <Input.TextArea
             value={currentMessage}
-            onChange={(e) => {
-              setFileName("");
-              setCurrentMessage(e.target.value);
-            }}
+            onChange={(e) => setCurrentMessage(e.target.value)}
             onKeyDown={onKeyPress}
             placeholder="Type your message..."
             autoSize={{ minRows: 1, maxRows: 4 }}
@@ -211,9 +210,7 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
           <Button
             type="primary"
             icon={<SendOutlined />}
-            onClick={() => {
-              handleSendMessage();
-            }}
+            onClick={handleSendMessage}
           />
         </div>
       </div>

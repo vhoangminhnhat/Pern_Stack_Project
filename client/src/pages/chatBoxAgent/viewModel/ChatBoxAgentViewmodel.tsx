@@ -38,15 +38,20 @@ export const ChatBoxAgentViewmodel = () => {
     }
   };
 
-  const handleSendMessage = async (message: string, file?: File) => {
+  const handleSendMessage = async (
+    message: string,
+    file?: File,
+    fileName?: string
+  ) => {
     if (!message.trim() && !file) return;
 
     const messageToSend = message || "Please analyze this document";
-    setCurrentMessage(""); // Clear input immediately
+    setCurrentMessage("");
 
     const tempUserMessage: ChatMessageResponseModel = {
       id: Date.now().toString(),
       body: messageToSend,
+      fileName: fileName ?? "",
       isAI: false,
       createdAt: new Date().toISOString(),
     };

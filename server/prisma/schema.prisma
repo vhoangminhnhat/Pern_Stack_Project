@@ -50,6 +50,7 @@ model Messages {
   conversationsId String
   senderId        String
   body            String
+  fileName        String?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   conversation    Conversations @relation(fields: [conversationsId], references: [id])

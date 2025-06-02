@@ -88,6 +88,7 @@ export class ChatMessageController {
         data: {
           body: message || "Please analyze this document",
           senderId: senderId,
+          fileName: file?.originalname || null,
           conversationsId: conversation.id,
         },
       });
