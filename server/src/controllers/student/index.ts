@@ -64,7 +64,6 @@ export class StudentController {
           scores: true,
         },
       });
-      // Format as needed for the Python API
       const data = students.map((student) => {
         const scoresObj: Record<string, number> = {};
         student.scores.forEach((score) => {

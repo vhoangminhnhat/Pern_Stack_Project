@@ -11,19 +11,6 @@ import {
 import { IGetUserInfo } from "../../middlewares/protectedRoutes.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
 
-// interface PDFPage {
-//   content: Array<{
-//     str: string;
-//     [key: string]: any;
-//   }>;
-//   [key: string]: any;
-// }
-
-// interface PDFData {
-//   pages: PDFPage[];
-//   [key: string]: any;
-// }
-
 export class ChatMessageController {
   private static async getOrCreateAIUser() {
     const aiUser = await prisma.user.findFirst({
@@ -137,12 +124,11 @@ export class ChatMessageController {
         }
       }
 
-      // Call the local Ollama service with DeepSeek model
       try {
         const ollamaResponse = await axios.post(
           "http://localhost:11434/v1/chat/completions",
           {
-            model: "deepseek-r1:1.5b", // or your preferred DeepSeek model tag
+            model: "deepseek-r1:1.5b",
             messages: [{ role: "user", content: prompt }],
             temperature: 0.7,
           },
@@ -180,8 +166,6 @@ export class ChatMessageController {
         });
       } catch (ollamaError: any) {
         console.error("Ollama/DeepSeek service error:", ollamaError);
-
-        // Check if it's a connection error
         if (
           ollamaError.code === "ECONNREFUSED" ||
           ollamaError.code === "ETIMEDOUT"
@@ -196,7 +180,6 @@ export class ChatMessageController {
           );
         }
 
-        // Check if it's a timeout error
         if (ollamaError.code === "ECONNABORTED") {
           return getBaseErrorResponse(
             {
