@@ -6,7 +6,7 @@ import articleRouter from "./routes/articleRoutes.js";
 import authRouter from "./routes/Authentication.js";
 import chatRouter from "./routes/ChatMessages.js";
 import myProfileRouter from "./routes/MyProfile.js";
-import studentRouter from "./routes/studentRoutes.js";
+import studentRouter from "./routes/StudentRoutes.js";
 import { getAppApiBase } from "./utils/helpers.js";
 
 dotenv.config();
