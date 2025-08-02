@@ -6,6 +6,7 @@ import articleRouter from "./routes/articleRoutes.js";
 import authRouter from "./routes/Authentication.js";
 import chatRouter from "./routes/ChatMessages.js";
 import myProfileRouter from "./routes/MyProfile.js";
+import studentRouter from "./routes/studentRoutes.js";
 import { getAppApiBase } from "./utils/helpers.js";
 
 dotenv.config();
@@ -24,6 +25,8 @@ app.use(getAppApiBase("authen"), authRouter);
 app.use(getAppApiBase("chat-messages"), chatRouter);
 
 app.use(getAppApiBase("personal"), myProfileRouter);
+
+app.use(getAppApiBase("students"), studentRouter);
 
 console.log("DATABASE_URL used by server:", process.env.DATABASE_URL);
 app.listen(5000, () => {
