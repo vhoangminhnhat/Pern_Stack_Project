@@ -7,11 +7,7 @@ interface FloatingButtonProps {
   className?: string;
 }
 
-const FloatingButton: React.FC<FloatingButtonProps> = ({
-  icon,
-  onClick,
-  className = "",
-}) => {
+const FloatingButton: React.FC<FloatingButtonProps> = ({ icon, onClick }) => {
   return (
     <FloatButton
       type="primary"
