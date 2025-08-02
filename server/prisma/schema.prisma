@@ -69,6 +69,33 @@ model Article {
   user      User     @relation(fields: [userId], references: [id])
 }
 
+model Student {
+  id         String   @id @default(cuid())
+  studentId  String   @unique // university student code
+  fullName   String
+  gender     Gender
+  birthDate  DateTime?
+  scores     Score[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Subject {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  scores    Score[]
+}
+
+model Score {
+  id         String   @id @default(cuid())
+  studentId  String
+  subjectId  String
+  value      Float
+  student    Student  @relation(fields: [studentId], references: [id])
+  subject    Subject  @relation(fields: [subjectId], references: [id])
+}
+
 enum Gender {
   male
   female

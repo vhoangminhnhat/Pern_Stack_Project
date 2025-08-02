@@ -5,6 +5,7 @@ import path from "path";
 import prisma from "../../../database/db.js";
 import { IGetUserInfo } from "../../middlewares/protectedRoutes.js";
 import { ErrorModel, getBaseErrorResponse } from "../../utils/helpers.js";
+import { SummarizePrompts } from "./prompts/SummarizePrompts.js";
 
 export class ArticleController {
   async listArticles(req: IGetUserInfo, res: Response) {
@@ -232,63 +233,35 @@ export class ArticleController {
       }
 
       try {
-        let summarizedPrompt = `As an academic research analyst, please provide a comprehensive analysis of the following academic article:
-
-Article Title: ${article.name}
-Article URL: ${url}
-
-Please structure your analysis in the following sections:
-
-1. Executive Summary (2-3 sentences)
-   - Main research question or objective
-   - Key findings or conclusions
-
-2. Methodology Overview
-   - Research approach
-   - Data collection methods
-   - Analysis techniques used
-
-3. Key Contributions
-   - Main theoretical contributions
-   - Practical implications
-   - Novel approaches or findings
-
-4. Critical Analysis
-   - Strengths of the research
-   - Potential limitations
-   - Areas for future research
-
-Please ensure your analysis is clear, concise, and maintains academic rigor while being accessible to readers.`;
-        let relationPrompt = `As an academic research assistant, please analyze the following article and suggest related academic works:
-
-Article Title: ${article.name}
-Article URL: ${url}
-
-Please provide a list of related articles that:
-1. Share similar research methodologies or approaches
-2. Cover related topics or themes
-3. Build upon or extend the findings
-4. Present alternative viewpoints or contrasting perspectives
-5. Are from the same field of study
-
-For each related article suggestion, please explain briefly why it's relevant to the original article.
-
-Format your response as a structured list with clear explanations for each recommendation.`;
-        console.log(url);
+        let summarizedPrompt = SummarizePrompts.summarizeArticle(
+          article,
+          url as string
+        );
+        let relationPrompt = SummarizePrompts.relationArticle(
+          article,
+          url as string
+        );
+        const prompt = type === "summary" ? summarizedPrompt : relationPrompt;
         const response = await axios.post(
-          "http://127.0.0.1:11434/api/generate",
+          "http://localhost:11434/v1/chat/completions",
           {
             model: "deepseek-r1:1.5b",
-            prompt: type === "summary" ? summarizedPrompt : relationPrompt,
-            stream: false,
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+          },
+          {
+            timeout: 120000,
+            headers: {
+              "Content-Type": "application/json",
+            },
           }
         );
 
-        if (!response.data || !response.data.response) {
+        if (!response.data || !response.data.choices?.[0]?.message?.content) {
           throw new Error("Invalid response from Ollama API");
         }
 
-        const cleanSummary = response.data.response
+        const cleanSummary = response.data.choices[0].message.content
           .replace(/<think>/g, "")
           .replace(/<\/think>/g, "")
           .trim();

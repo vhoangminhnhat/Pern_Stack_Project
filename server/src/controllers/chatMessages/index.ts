@@ -93,7 +93,9 @@ export class ChatMessageController {
         },
       });
 
-      let prompt = message || "Summarize and analyze this document";
+      let prompt =
+        message ||
+        "Vui lòng phân tích tài liệu trên theo ngôn ngữ học thuật, tìm kiếm thêm một số tài liệu bằng tiếng Anh và tiếng Việt";
       let fileContent = "";
 
       if (file) {
@@ -130,48 +132,93 @@ export class ChatMessageController {
           prompt = `${prompt}\n\nDocument: ${file.originalname}\n\nContent:\n${fileContent}`;
         }
 
-        // Ensure the prompt is not too long for Ollama
-        if (prompt.length > 4000) {
-          prompt =
-            prompt.substring(0, 4000) +
-            "...\n[Content truncated due to length]";
+        if (prompt.length > 12000) {
+          prompt = prompt.substring(0, 12000) + "...\n[Content truncated]";
         }
       }
 
-      const ollamaRes = await axios.post(
-        "http://127.0.0.1:11434/api/generate",
-        {
-          model: "deepseek-r1:1.5b",
-          prompt: prompt,
-          stream: false,
+      // Call the local Ollama service with DeepSeek model
+      try {
+        const ollamaResponse = await axios.post(
+          "http://localhost:11434/v1/chat/completions",
+          {
+            model: "deepseek-r1:1.5b", // or your preferred DeepSeek model tag
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.7,
+          },
+          {
+            timeout: 120000,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        const aiResponseContent =
+          ollamaResponse.data.choices?.[0]?.message?.content || "";
+
+        const aiMessage = await prisma.messages.create({
+          data: {
+            body: aiResponseContent,
+            senderId: aiUser.id,
+            conversationsId: conversation.id,
+          },
+        });
+
+        return res.status(200).json({
+          data: {
+            userMessage: {
+              ...userMessage,
+              isAI: false,
+            },
+            aiMessage: {
+              ...aiMessage,
+              isAI: true,
+            },
+          },
+          message: "Chat message sent successfully",
+        });
+      } catch (ollamaError: any) {
+        console.error("Ollama/DeepSeek service error:", ollamaError);
+
+        // Check if it's a connection error
+        if (
+          ollamaError.code === "ECONNREFUSED" ||
+          ollamaError.code === "ETIMEDOUT"
+        ) {
+          return getBaseErrorResponse(
+            {
+              code: 503,
+              message:
+                "Ollama/DeepSeek service is not available. Please ensure Ollama is running on port 11434 and the DeepSeek model is pulled.",
+            },
+            res
+          );
         }
-      );
 
-      const aiResponseContent = (ollamaRes.data.response || "")
-        .replace(/<think>.*?<\/think>/gs, "")
-        .trim();
+        // Check if it's a timeout error
+        if (ollamaError.code === "ECONNABORTED") {
+          return getBaseErrorResponse(
+            {
+              code: 504,
+              message:
+                "Request to Ollama/DeepSeek service timed out. The model might be taking too long to respond.",
+            },
+            res
+          );
+        }
 
-      const aiMessage = await prisma.messages.create({
-        data: {
-          body: aiResponseContent,
-          senderId: aiUser.id,
-          conversationsId: conversation.id,
-        },
-      });
-
-      return res.status(200).json({
-        data: {
-          userMessage: {
-            ...userMessage,
-            isAI: false,
+        // For other errors
+        return getBaseErrorResponse(
+          {
+            code: 500,
+            message:
+              ollamaError.response?.data?.error ||
+              "Failed to generate response from DeepSeek. Please try again.",
           },
-          aiMessage: {
-            ...aiMessage,
-            isAI: true,
-          },
-        },
-        message: "Chat message sent successfully",
-      });
+          res
+        );
+      }
     } catch (error) {
       console.error("Error in aiConversation:", error);
       return getBaseErrorResponse(
