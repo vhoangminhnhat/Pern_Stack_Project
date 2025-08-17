@@ -1,0 +1,16 @@
+-- AlterTable
+ALTER TABLE "Student" ADD COLUMN     "averageGrade" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "curricularUnits1stSemApproved" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "curricularUnits1stSemEnrolled" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "curricularUnits1stSemGrade" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "curricularUnits2ndSemApproved" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "curricularUnits2ndSemEnrolled" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "curricularUnits2ndSemGrade" DOUBLE PRECISION NOT NULL DEFAULT 0.0,
+ADD COLUMN     "debtor" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "dropoutPrediction" DOUBLE PRECISION,
+ADD COLUMN     "dropoutPredictionDate" TIMESTAMP(3),
+ADD COLUMN     "totalApproved" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "totalEnrolled" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "totalFailed" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "tuitionFeesUpToDate" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "unpassedCourses" INTEGER NOT NULL DEFAULT 0;
