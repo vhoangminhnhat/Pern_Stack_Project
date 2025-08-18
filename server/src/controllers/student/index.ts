@@ -3,6 +3,9 @@ import prisma from "../../../database/db.js";
 import { ErrorModel } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
 import axios from "axios";
+import FormData from "form-data";
+import XLSX from "xlsx";
+import path from "path";
 
 export class StudentController {
   static async listStudents(req: Request, res: Response) {
@@ -349,6 +352,68 @@ export class StudentController {
       return getBaseErrorResponse(error as ErrorModel, res);
     }
   }
+
+  static async predictDropoutFromFile(req: Request, res: Response) {
+    try {
+      const uploadedFile = (req as any).file as Express.Multer.File | undefined;
+      if (!uploadedFile) {
+        return res.status(400).json({ error: "file is required (field name: 'file')" });
+      }
+
+      const pythonApiUrl = process.env.PYTHON_API_URL || "http://localhost:8000";
+
+      let fileBuffer = uploadedFile.buffer as Buffer;
+      let fileNameToSend = uploadedFile.originalname || "upload.csv";
+      const fileExtension = path.extname(fileNameToSend).toLowerCase();
+      if (fileExtension === ".xlsx" || fileExtension === ".xls") {
+        const workbook = XLSX.read(fileBuffer, { type: "buffer" });
+        const firstSheetName = workbook.SheetNames[0];
+        const firstSheet = workbook.Sheets[firstSheetName];
+        const csvString = XLSX.utils.sheet_to_csv(firstSheet);
+        fileBuffer = Buffer.from(csvString, "utf8");
+        fileNameToSend = "upload.csv";
+      }
+
+      const form = new FormData();
+      form.append("file", fileBuffer, {
+        filename: fileNameToSend,
+        contentType: "text/csv",
+      } as any);
+
+      const response = await axios.post(`${pythonApiUrl}/predict-file`, form, {
+        headers: {
+          ...form.getHeaders(),
+        },
+        maxBodyLength: Infinity,
+      });
+
+      const result = response.data as { student_ids: (string | number)[]; predictions: number[] };
+
+      // Try to persist predictions back to DB for existing students
+      const updatePromises = (result.student_ids || []).map((sid, index) => {
+        return prisma.student
+          .update({
+            where: { studentId: String(sid) },
+            data: {
+              dropoutPrediction: result.predictions[index],
+              dropoutPredictionDate: new Date(),
+            },
+          })
+          .catch(() => null);
+      });
+
+      await Promise.all(updatePromises);
+
+      const combined = (result.student_ids || []).map((sid, index) => ({
+        studentId: String(sid),
+        dropoutPrediction: result.predictions[index],
+      }));
+
+      return res.status(200).json({ data: combined, message: "Dropout predictions from file completed successfully" });
+    } catch (error) {
+      return getBaseErrorResponse(error as ErrorModel, res);
+    }
+  }
 }
 
 export const {
@@ -361,4 +426,5 @@ export const {
   getDropoutPredictionData,
   predictDropout,
   getStudentWithPrediction,
+  predictDropoutFromFile,
 } = StudentController;

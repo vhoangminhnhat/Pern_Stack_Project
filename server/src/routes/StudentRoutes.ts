@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import {
   addScore,
   addStudent,
@@ -8,11 +9,13 @@ import {
   getDropoutPredictionData,
   predictDropout,
   getStudentWithPrediction,
+  predictDropoutFromFile,
   listStudents,
 } from "../controllers/student/index.js";
 import { protectedRoutes } from "../middlewares/protectedRoutes.js";
 
 const studentRouter = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 studentRouter.get("/", protectedRoutes as any, listStudents as any);
 studentRouter.post("/add-student", protectedRoutes as any, addStudent as any);
@@ -33,6 +36,12 @@ studentRouter.post(
   "/predict-dropout",
   protectedRoutes as any,
   predictDropout as any
+);
+studentRouter.post(
+  "/predict-dropout-file",
+  protectedRoutes as any,
+  upload.single("file") as any,
+  predictDropoutFromFile as any
 );
 studentRouter.get(
   "/:studentId",
