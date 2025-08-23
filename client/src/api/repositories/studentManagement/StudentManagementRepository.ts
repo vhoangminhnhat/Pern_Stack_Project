@@ -3,14 +3,15 @@ import { BaseApiResponseModel } from "api/baseApiResponseModel/BaseApiResponseMo
 import client from "api/client";
 import { StudentManagementResponseModel } from "./model/StudentManagementResponseModel";
 import { StudentManagmentRequestModel } from "./model/StudentManagmentRequestModel";
+import { DropoutPredictionResponseModel } from "./model/dropoutPrediction/DropoutPredictionResponseModel";
 
 export interface IStudentManagementRepository {
   getList(
     params: StudentManagmentRequestModel
   ): Promise<BaseApiResponseModel<Array<StudentManagementResponseModel>>>;
-  predictDropout(
-    params: { studentIds: string[] }
-  ): Promise<BaseApiResponseModel<any>>;
+  predictDropout(params: {
+    studentIds: string[];
+  }): Promise<BaseApiResponseModel<Array<DropoutPredictionResponseModel>>>;
   predictDropoutFromFile(
     formData: FormData
   ): Promise<BaseApiResponseModel<any>>;
@@ -24,20 +25,24 @@ class StudentManagementImpl implements IStudentManagementRepository {
     return await client?.get(STUDENT_MANAGEMENT?.LIST, params);
   }
 
-  async predictDropout(
-    params: { studentIds: string[] }
-  ): Promise<BaseApiResponseModel<any>> {
+  async predictDropout(params: {
+    studentIds: string[];
+  }): Promise<BaseApiResponseModel<Array<DropoutPredictionResponseModel>>> {
     return await client?.post(STUDENT_MANAGEMENT?.PREDICT_DROPOUT, params);
   }
 
   async predictDropoutFromFile(
     formData: FormData
   ): Promise<BaseApiResponseModel<any>> {
-    return await client?.post(STUDENT_MANAGEMENT?.PREDICT_DROPOUT_FILE, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    return await client?.post(
+      STUDENT_MANAGEMENT?.PREDICT_DROPOUT_FILE,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
   }
 
   async getDropoutPredictionData(): Promise<BaseApiResponseModel<any>> {

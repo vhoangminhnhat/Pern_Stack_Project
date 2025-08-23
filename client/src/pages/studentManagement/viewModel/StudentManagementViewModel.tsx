@@ -1,13 +1,19 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import { Button, Form, Tooltip } from "antd";
+import { Button, Form, Tooltip, UploadFile } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { DefaultPagingModel } from "api/repositories/defaultPagingModel/DefaultPagingModel";
+import { DropoutPredictionResponseModel } from "api/repositories/studentManagement/model/dropoutPrediction/DropoutPredictionResponseModel";
 import { StudentManagementResponseModel } from "api/repositories/studentManagement/model/StudentManagementResponseModel";
 import { StudentManagmentRequestModel } from "api/repositories/studentManagement/model/StudentManagmentRequestModel";
 import { defaultStudentManagementRepository } from "api/repositories/studentManagement/StudentManagementRepository";
 import { AuthenticationContext } from "context/AuthenticationContext";
 import { useEffect, useState } from "react";
-import { getMessage, paramsChecking } from "utils/helpersInTs/helpersInTs";
+import {
+  createCSVContent,
+  downloadCSV,
+  getMessage,
+  paramsChecking,
+} from "utils/helpersInTs/helpersInTs";
 import { StudentManagementConstants } from "../constants/StudentManagementConstants";
 
 const StudentManagementViewModel = () => {
@@ -26,6 +32,14 @@ const StudentManagementViewModel = () => {
       limit: 10,
     });
   const [filterForm] = Form.useForm();
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [dropoutPredictionModal, setDropoutPredictionModal] = useState(false);
+  const [dropoutPredictionResults, setDropoutPredictionResults] = useState<
+    Array<DropoutPredictionResponseModel>
+  >([]);
+  const [dropoutPredictionLoading, setDropoutPredictionLoading] =
+    useState(false);
+
   const { localStrings } = AuthenticationContext();
 
   const fetchList = async (params: StudentManagmentRequestModel) => {
@@ -53,17 +67,6 @@ const StudentManagementViewModel = () => {
     setParamsExport(params);
     await fetchList(params);
   };
-
-  //   const handleActions = async (
-  //     formData: FormData,
-  //     action: "create" | "update"
-  //   ) => {
-  //     if (action === "create") {
-  //       await createArticle(formData);
-  //     } else if (action === "update" && detailInfo?.code) {
-  //       await updateArticle(detailInfo.code, formData);
-  //     }
-  //   };
 
   const columns: ColumnsType<StudentManagementResponseModel> = [
     ...StudentManagementConstants?.mainColumns(localStrings),
@@ -118,51 +121,69 @@ const StudentManagementViewModel = () => {
     await fetchList(params);
   };
 
-  // Predict dropout for selected students
   const handlePredictDropout = async (studentIds: string[]) => {
     try {
-      setLoading(true);
-      const response = await defaultStudentManagementRepository.predictDropout({ studentIds });
+      setDropoutPredictionLoading(true);
+      const response = await defaultStudentManagementRepository.predictDropout({
+        studentIds,
+      });
       if (response?.data) {
+        const results = response.data.map((item: any) => ({
+          studentId: item.studentId,
+          fullName: item.fullName,
+          dropoutPrediction: item.dropoutPrediction,
+          predictionDate: item.predictionDate,
+        }));
+
+        setDropoutPredictionResults(results);
+        setDropoutPredictionModal(true);
         getMessage("Dropout prediction completed successfully", 4, "success");
-        // Refresh the list to show updated predictions
         await fetchList(paramsExport);
       }
     } catch (error) {
       getMessage("Failed to predict dropout", 4, "error");
     } finally {
-      setLoading(false);
+      setDropoutPredictionLoading(false);
     }
   };
 
-  // Import Excel file for dropout prediction
   const handleImportExcelForDropout = async (file: File) => {
     try {
-      setLoading(true);
+      setDropoutPredictionLoading(true);
       const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await defaultStudentManagementRepository.predictDropoutFromFile(formData);
+      formData.append("file", file);
+
+      const response =
+        await defaultStudentManagementRepository.predictDropoutFromFile(
+          formData
+        );
       if (response?.data) {
+        const results = response.data.map((item: any) => ({
+          studentId: item.studentId,
+          dropoutPrediction: item.dropoutPrediction,
+          fullName: `Student ${item.studentId}`,
+          predictionDate: new Date().toISOString(),
+        }));
+        setDropoutPredictionResults(results);
+        setDropoutPredictionModal(true);
         getMessage("Excel file processed successfully", 4, "success");
-        // Refresh the list to show updated predictions
         await fetchList(paramsExport);
       }
     } catch (error) {
       getMessage("Failed to process Excel file", 4, "error");
     } finally {
-      setLoading(false);
+      setDropoutPredictionLoading(false);
     }
   };
 
-  // Get dropout prediction data for export
   const handleExportDropoutData = async () => {
     try {
       setLoading(true);
-      const response = await defaultStudentManagementRepository.getDropoutPredictionData();
+      const response =
+        await defaultStudentManagementRepository.getDropoutPredictionData();
       if (response?.data) {
-        // You can implement CSV/Excel export logic here
-        console.log("Dropout prediction data:", response.data);
+        const csvContent = createCSVContent(response.data);
+        downloadCSV(csvContent, "dropout_prediction_data.csv");
         getMessage("Dropout data exported successfully", 4, "success");
       }
     } catch (error) {
@@ -185,6 +206,9 @@ const StudentManagementViewModel = () => {
     modal,
     summaryModal,
     summary,
+    localStrings,
+    fileList,
+    setFileList,
     setSummaryModal,
     handleSearch,
     setModal,
@@ -196,6 +220,10 @@ const StudentManagementViewModel = () => {
     handlePredictDropout,
     handleImportExcelForDropout,
     handleExportDropoutData,
+    dropoutPredictionModal,
+    setDropoutPredictionModal,
+    dropoutPredictionResults,
+    dropoutPredictionLoading,
   };
 };
 
