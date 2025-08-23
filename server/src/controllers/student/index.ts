@@ -1,16 +1,48 @@
+import axios from "axios";
 import { Request, Response } from "express";
+import FormData from "form-data";
+import path from "path";
+import XLSX from "xlsx";
 import prisma from "../../../database/db.js";
 import { ErrorModel } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
-import axios from "axios";
-import FormData from "form-data";
-import XLSX from "xlsx";
-import path from "path";
 
 export class StudentController {
   static async listStudents(req: Request, res: Response) {
     try {
+      const { fullName, gender, studentId } = req.query;
+      const whereClause: any = {};
+
+      if (fullName && typeof fullName === "string") {
+        whereClause.fullName = {
+          contains: fullName,
+          mode: "insensitive",
+        };
+      }
+
+      if (gender && typeof gender === "string") {
+        const genderLower = gender.toLowerCase();
+        if (genderLower !== "male" && genderLower !== "female") {
+          return getBaseErrorResponse(
+            {
+              code: 400,
+              message: "Gender parameter must be 'male' or 'female'",
+            },
+            res
+          );
+        }
+        whereClause.gender = genderLower;
+      }
+
+      if (studentId && typeof studentId === "string") {
+        whereClause.studentId = {
+          contains: studentId,
+          mode: "insensitive",
+        };
+      }
+
       const students = await prisma.student.findMany({
+        where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
         include: {
           scores: {
             include: {
@@ -19,9 +51,16 @@ export class StudentController {
           },
         },
       });
-      return res
-        .status(200)
-        .json({ data: students, message: "List of students" });
+
+      return res.status(200).json({
+        data: students,
+        message: "List of students",
+        filters: {
+          fullName: fullName || null,
+          gender: gender || null,
+          studentId: studentId || null,
+        },
+      });
     } catch (error) {
       return getBaseErrorResponse(error as ErrorModel, res);
     }
@@ -29,10 +68,10 @@ export class StudentController {
 
   static async addStudent(req: Request, res: Response) {
     try {
-      const { 
-        studentId, 
-        fullName, 
-        gender, 
+      const {
+        studentId,
+        fullName,
+        gender,
         birthDate,
         curricularUnits1stSemEnrolled,
         curricularUnits1stSemApproved,
@@ -46,14 +85,14 @@ export class StudentController {
         totalApproved,
         totalFailed,
         averageGrade,
-        unpassedCourses
+        unpassedCourses,
       } = req.body;
-      
+
       const student = await prisma.student.create({
-        data: { 
-          studentId, 
-          fullName, 
-          gender, 
+        data: {
+          studentId,
+          fullName,
+          gender,
           birthDate,
           curricularUnits1stSemEnrolled: curricularUnits1stSemEnrolled || 0,
           curricularUnits1stSemApproved: curricularUnits1stSemApproved || 0,
@@ -62,12 +101,13 @@ export class StudentController {
           curricularUnits2ndSemApproved: curricularUnits2ndSemApproved || 0,
           curricularUnits2ndSemGrade: curricularUnits2ndSemGrade || 0.0,
           debtor: debtor || false,
-          tuitionFeesUpToDate: tuitionFeesUpToDate !== undefined ? tuitionFeesUpToDate : true,
+          tuitionFeesUpToDate:
+            tuitionFeesUpToDate !== undefined ? tuitionFeesUpToDate : true,
           totalEnrolled: totalEnrolled || 0,
           totalApproved: totalApproved || 0,
           totalFailed: totalFailed || 0,
           averageGrade: averageGrade || 0.0,
-          unpassedCourses: unpassedCourses || 0
+          unpassedCourses: unpassedCourses || 0,
         },
       });
       return res.status(201).json({ data: student, message: "Student added" });
@@ -79,9 +119,9 @@ export class StudentController {
   static async updateStudent(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { 
-        fullName, 
-        gender, 
+      const {
+        fullName,
+        gender,
         birthDate,
         curricularUnits1stSemEnrolled,
         curricularUnits1stSemApproved,
@@ -95,14 +135,14 @@ export class StudentController {
         totalApproved,
         totalFailed,
         averageGrade,
-        unpassedCourses
+        unpassedCourses,
       } = req.body;
-      
+
       const student = await prisma.student.update({
         where: { id },
-        data: { 
-          fullName, 
-          gender, 
+        data: {
+          fullName,
+          gender,
           birthDate,
           curricularUnits1stSemEnrolled,
           curricularUnits1stSemApproved,
@@ -116,10 +156,12 @@ export class StudentController {
           totalApproved,
           totalFailed,
           averageGrade,
-          unpassedCourses
+          unpassedCourses,
         },
       });
-      return res.status(200).json({ data: student, message: "Student updated" });
+      return res
+        .status(200)
+        .json({ data: student, message: "Student updated" });
     } catch (error) {
       return getBaseErrorResponse(error as ErrorModel, res);
     }
@@ -196,25 +238,29 @@ export class StudentController {
       });
 
       const formattedData = students.map((student) => ({
-        Gender: student.gender === 'male' ? 0 : 1,
-        "Curricular units 1st sem (enrolled)": student.curricularUnits1stSemEnrolled,
-        "Curricular units 1st sem (approved)": student.curricularUnits1stSemApproved,
+        Gender: student.gender === "male" ? 0 : 1,
+        "Curricular units 1st sem (enrolled)":
+          student.curricularUnits1stSemEnrolled,
+        "Curricular units 1st sem (approved)":
+          student.curricularUnits1stSemApproved,
         "Curricular units 1st sem (grade)": student.curricularUnits1stSemGrade,
-        "Curricular units 2nd sem (enrolled)": student.curricularUnits2ndSemEnrolled,
-        "Curricular units 2nd sem (approved)": student.curricularUnits2ndSemApproved,
+        "Curricular units 2nd sem (enrolled)":
+          student.curricularUnits2ndSemEnrolled,
+        "Curricular units 2nd sem (approved)":
+          student.curricularUnits2ndSemApproved,
         "Curricular units 2nd sem (grade)": student.curricularUnits2ndSemGrade,
-        "Debtor": student.debtor ? 1 : 0,
+        Debtor: student.debtor ? 1 : 0,
         "Tuition fees up to date": student.tuitionFeesUpToDate ? 1 : 0,
-        "total_enrolled": student.totalEnrolled,
-        "total_approved": student.totalApproved,
-        "total_failed": student.totalFailed,
-        "average_grade": student.averageGrade,
-        "unpassed_courses": student.unpassedCourses,
+        total_enrolled: student.totalEnrolled,
+        total_approved: student.totalApproved,
+        total_failed: student.totalFailed,
+        average_grade: student.averageGrade,
+        unpassed_courses: student.unpassedCourses,
       }));
 
-      return res.status(200).json({ 
-        data: formattedData, 
-        message: "Dropout prediction data exported" 
+      return res.status(200).json({
+        data: formattedData,
+        message: "Dropout prediction data exported",
       });
     } catch (error) {
       return getBaseErrorResponse(error as ErrorModel, res);
@@ -224,17 +270,17 @@ export class StudentController {
   static async predictDropout(req: Request, res: Response) {
     try {
       const { studentIds } = req.body;
-      
+
       if (!studentIds || !Array.isArray(studentIds)) {
-        return res.status(400).json({ 
-          error: "studentIds array is required" 
+        return res.status(400).json({
+          error: "studentIds array is required",
         });
       }
 
       // Get student data for prediction
       const students = await prisma.student.findMany({
         where: {
-          studentId: { in: studentIds }
+          studentId: { in: studentIds },
         },
         select: {
           studentId: true,
@@ -257,44 +303,53 @@ export class StudentController {
       });
 
       if (students.length === 0) {
-        return res.status(404).json({ 
-          error: "No students found with the provided IDs" 
+        return res.status(404).json({
+          error: "No students found with the provided IDs",
         });
       }
 
       // Format data for Python API
       const predictionData = students.map((student) => ({
-        Gender: student.gender === 'male' ? 0 : 1,
-        "Curricular units 1st sem (enrolled)": student.curricularUnits1stSemEnrolled,
-        "Curricular units 1st sem (approved)": student.curricularUnits1stSemApproved,
+        Gender: student.gender === "male" ? 0 : 1,
+        "Curricular units 1st sem (enrolled)":
+          student.curricularUnits1stSemEnrolled,
+        "Curricular units 1st sem (approved)":
+          student.curricularUnits1stSemApproved,
         "Curricular units 1st sem (grade)": student.curricularUnits1stSemGrade,
-        "Curricular units 2nd sem (enrolled)": student.curricularUnits2ndSemEnrolled,
-        "Curricular units 2nd sem (approved)": student.curricularUnits2ndSemApproved,
+        "Curricular units 2nd sem (enrolled)":
+          student.curricularUnits2ndSemEnrolled,
+        "Curricular units 2nd sem (approved)":
+          student.curricularUnits2ndSemApproved,
         "Curricular units 2nd sem (grade)": student.curricularUnits2ndSemGrade,
-        "Debtor": student.debtor ? 1 : 0,
+        Debtor: student.debtor ? 1 : 0,
         "Tuition fees up to date": student.tuitionFeesUpToDate ? 1 : 0,
-        "total_enrolled": student.totalEnrolled,
-        "total_approved": student.totalApproved,
-        "total_failed": student.totalFailed,
-        "average_grade": student.averageGrade,
-        "unpassed_courses": student.unpassedCourses,
+        total_enrolled: student.totalEnrolled,
+        total_approved: student.totalApproved,
+        total_failed: student.totalFailed,
+        average_grade: student.averageGrade,
+        unpassed_courses: student.unpassedCourses,
       }));
 
       // Call Python API for prediction
-      const pythonApiUrl = process.env.PYTHON_API_URL || 'http://localhost:8000';
-      const response = await axios.post(`${pythonApiUrl}/predict`, {
-        data: predictionData
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
+      const pythonApiUrl =
+        process.env.PYTHON_API_URL || "http://localhost:8000";
+      const response = await axios.post(
+        `${pythonApiUrl}/predict`,
+        {
+          data: predictionData,
         },
-      });
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       const predictionResult = response.data;
       const predictions = predictionResult.predictions;
 
       // Update students with prediction results
-      const updatePromises = students.map((student, index) => 
+      const updatePromises = students.map((student, index) =>
         prisma.student.update({
           where: { studentId: student.studentId },
           data: {
@@ -314,9 +369,9 @@ export class StudentController {
         predictionDate: new Date(),
       }));
 
-      return res.status(200).json({ 
-        data: results, 
-        message: "Dropout predictions completed successfully" 
+      return res.status(200).json({
+        data: results,
+        message: "Dropout predictions completed successfully",
       });
     } catch (error) {
       return getBaseErrorResponse(error as ErrorModel, res);
@@ -326,7 +381,7 @@ export class StudentController {
   static async getStudentWithPrediction(req: Request, res: Response) {
     try {
       const { studentId } = req.params;
-      
+
       const student = await prisma.student.findUnique({
         where: { studentId },
         include: {
@@ -339,14 +394,14 @@ export class StudentController {
       });
 
       if (!student) {
-        return res.status(404).json({ 
-          error: "Student not found" 
+        return res.status(404).json({
+          error: "Student not found",
         });
       }
 
-      return res.status(200).json({ 
-        data: student, 
-        message: "Student data retrieved" 
+      return res.status(200).json({
+        data: student,
+        message: "Student data retrieved",
       });
     } catch (error) {
       return getBaseErrorResponse(error as ErrorModel, res);
@@ -357,10 +412,13 @@ export class StudentController {
     try {
       const uploadedFile = (req as any).file as Express.Multer.File | undefined;
       if (!uploadedFile) {
-        return res.status(400).json({ error: "file is required (field name: 'file')" });
+        return res
+          .status(400)
+          .json({ error: "file is required (field name: 'file')" });
       }
 
-      const pythonApiUrl = process.env.PYTHON_API_URL || "http://localhost:8000";
+      const pythonApiUrl =
+        process.env.PYTHON_API_URL || "http://localhost:8000";
 
       let fileBuffer = uploadedFile.buffer as Buffer;
       let fileNameToSend = uploadedFile.originalname || "upload.csv";
@@ -387,7 +445,10 @@ export class StudentController {
         maxBodyLength: Infinity,
       });
 
-      const result = response.data as { student_ids: (string | number)[]; predictions: number[] };
+      const result = response.data as {
+        student_ids: (string | number)[];
+        predictions: number[];
+      };
 
       // Try to persist predictions back to DB for existing students
       const updatePromises = (result.student_ids || []).map((sid, index) => {
@@ -409,7 +470,10 @@ export class StudentController {
         dropoutPrediction: result.predictions[index],
       }));
 
-      return res.status(200).json({ data: combined, message: "Dropout predictions from file completed successfully" });
+      return res.status(200).json({
+        data: combined,
+        message: "Dropout predictions from file completed successfully",
+      });
     } catch (error) {
       return getBaseErrorResponse(error as ErrorModel, res);
     }
