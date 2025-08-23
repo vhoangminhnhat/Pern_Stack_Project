@@ -3,23 +3,27 @@ import multer from "multer";
 import {
   addScore,
   addStudent,
-  updateStudent,
   addSubject,
   exportForDropoutPrediction,
   getDropoutPredictionData,
-  predictDropout,
   getStudentWithPrediction,
-  predictDropoutFromFile,
   listStudents,
+  predictDropout,
+  predictDropoutFromFile,
+  updateStudent,
 } from "../controllers/student/index.js";
 import { protectedRoutes } from "../middlewares/protectedRoutes.js";
 
 const studentRouter = Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-studentRouter.get("/", protectedRoutes as any, listStudents as any);
+studentRouter.get("/list", protectedRoutes as any, listStudents as any);
 studentRouter.post("/add-student", protectedRoutes as any, addStudent as any);
-studentRouter.put("/update-student/:id", protectedRoutes as any, updateStudent as any);
+studentRouter.put(
+  "/update-student/:id",
+  protectedRoutes as any,
+  updateStudent as any
+);
 studentRouter.post("/add-subject", protectedRoutes as any, addSubject as any);
 studentRouter.post("/add-score", protectedRoutes as any, addScore as any);
 studentRouter.get(

@@ -661,9 +661,30 @@ export const VnLocalizedStrings = {
       createdAt: "Ngày tạo",
       url: "Nguồn",
       file: "Tài liệu",
-    }
+    },
+  },
+  StudentManagement: {
+    Main: "Quản lý sinh viên",
+    Labels: {
+      fullName: "Họ tên",
+      gender: "Giới tính",
+      studentId: "Mã sinh viên",
+      curricularUnits1stSemEnrolled: "Số môn học đăng ký",
+      curricularUnits1stSemApproved: "Số môn học đã đăng ký",
+      curricularUnits1stSemGrade: "Điểm trung bình",
+      curricularUnits2ndSemEnrolled: "Số môn học đăng ký",
+      curricularUnits2ndSemApproved: "Số môn học đã đăng ký",
+      curricularUnits2ndSemGrade: "Điểm trung bình",
+      debtor: "Nợ",
+      tuitionFeesUpToDate: "Học phí đã đóng",
+      totalEnrolled: "Tổng số môn học",
+      totalApproved: "Tổng số môn học đã đăng ký",
+      totalFailed: "Tổng số môn học không đạt",
+      averageGrade: "Điểm trung bình",
+      unpassedCourses: "Số môn học không đạt",
+    },
   },
   ChatBox: {
-    Title: 'Câu hỏi dành cho AI'
-  }
+    Title: "Câu hỏi dành cho AI",
+  },
 };

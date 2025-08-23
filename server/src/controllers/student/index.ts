@@ -10,7 +10,7 @@ import { getBaseErrorResponse } from "../../utils/helpers.js";
 export class StudentController {
   static async listStudents(req: Request, res: Response) {
     try {
-      const { fullName, gender, studentId } = req.query;
+      const { fullName, gender, studentId, page, limit } = req.query;
       const whereClause: any = {};
 
       if (fullName && typeof fullName === "string") {
@@ -41,6 +41,16 @@ export class StudentController {
         };
       }
 
+      // Pagination logic
+      const pageNum = parseInt(page as string, 10) || 0;
+      const limitNum = parseInt(limit as string, 10) || 10;
+      const skip = pageNum * limitNum;
+
+      // Get total count for pagination info
+      const totalStudents = await prisma.student.count({
+        where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
+      });
+
       const students = await prisma.student.findMany({
         where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
         include: {
@@ -50,10 +60,17 @@ export class StudentController {
             },
           },
         },
+        skip,
+        take: limitNum,
       });
 
       return res.status(200).json({
         data: students,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: totalStudents,
+        },
         message: "List of students",
         filters: {
           fullName: fullName || null,

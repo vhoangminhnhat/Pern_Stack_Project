@@ -119,6 +119,14 @@ export const ARTICLE_MANAGEMENT = {
   DELETE: getV1Path("article/delete"),
 };
 
+export const STUDENT_MANAGEMENT = {
+  LIST: getV1Path("students/list"),
+  DROPOUT_PREDICT: getV1Path("students/predict-dropout"),
+  PREDICT_DROPOUT: getV1Path("students/predict-dropout"),
+  PREDICT_DROPOUT_FILE: getV1Path("students/predict-dropout-file"),
+  DROPOUT_PREDICTION_DATA: getV1Path("students/dropout-prediction-data"),
+};
+
 export const TOOLS = {
   VIDEO_GENERATION: getV1Path("tool/generate/videocall"),
 };
