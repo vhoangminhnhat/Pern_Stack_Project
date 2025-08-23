@@ -1,4 +1,4 @@
-export class StudentDropoutResponseModel {
+export class StudentManagementResponseModel {
   studentId?: string;
   fullName?: string;
   gender?: number;
