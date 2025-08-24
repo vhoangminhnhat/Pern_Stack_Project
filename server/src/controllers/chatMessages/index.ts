@@ -126,7 +126,7 @@ export class ChatMessageController {
 
       try {
         const ollamaResponse = await axios.post(
-          "http://localhost:11434/v1/chat/completions",
+          "http://127.0.0.1:11434/v1/chat/completions",
           {
             model: "deepseek-r1:1.5b",
             messages: [{ role: "user", content: prompt }],
@@ -140,8 +140,11 @@ export class ChatMessageController {
           }
         );
 
-        const aiResponseContent =
+        let aiResponseContent =
           ollamaResponse.data.choices?.[0]?.message?.content || "";
+        aiResponseContent = aiResponseContent
+          .replace(/<think>.*?<\/think>/gis, "")
+          ?.trim();
 
         const aiMessage = await prisma.messages.create({
           data: {

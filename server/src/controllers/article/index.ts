@@ -243,7 +243,7 @@ export class ArticleController {
         );
         const prompt = type === "summary" ? summarizedPrompt : relationPrompt;
         const response = await axios.post(
-          "http://localhost:11434/v1/chat/completions",
+          "http://127.0.0.1:11434/v1/chat/completions",
           {
             model: "deepseek-r1:1.5b",
             messages: [{ role: "user", content: prompt }],
@@ -275,7 +275,7 @@ export class ArticleController {
         });
       } catch (ollamaError: any) {
         try {
-          await axios.get("http://localhost:11434/api/tags");
+          await axios.get("http://127.0.0.1:11434/api/tags");
         } catch (e) {
           return getBaseErrorResponse(
             {

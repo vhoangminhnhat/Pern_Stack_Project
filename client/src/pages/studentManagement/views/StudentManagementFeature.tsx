@@ -156,7 +156,7 @@ const StudentManagementFeature = () => {
                   handleTableChange,
                   loading,
                   loadingTitle: "Loading...",
-                  scroll: { x: 2300, y: 800 },
+                  scroll: { x: 2700, y: 800 },
                 }}
               />
             </Row>

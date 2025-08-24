@@ -22,7 +22,7 @@ export class StudentManagementConstants {
   }
 
   static mainColumns(localStrings: typeof strings) {
-    return Object.entries(localStrings.StudentManagement.Labels)?.map(
+    return Object.entries(localStrings.StudentManagement.Columns)?.map(
       ([key, val]) => {
         return {
           title: val,
@@ -30,14 +30,18 @@ export class StudentManagementConstants {
           key: `student-${key}`,
           align: "center",
           ellipsis: {
-            showTitle: false,
+            showTitle: true,
           },
           render: (text) =>
             key === "birthDate"
-              ? moment(text).format("DD/MM/YYYY HH:mm:ss")
+              ? !!text
+                ? moment(text).format("DD/MM/YYYY HH:mm:ss")
+                : localStrings.GlobalLabels.NoInfo
               : key === "debtor"
               ? this.getBoolean(localStrings, text)
-              : text,
+              : !!text
+              ? text
+              : localStrings.GlobalLabels.NoInfo,
         };
       }
     ) as ColumnsType<StudentManagementResponseModel>;

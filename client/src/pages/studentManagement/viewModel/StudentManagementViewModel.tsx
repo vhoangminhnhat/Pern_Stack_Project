@@ -75,7 +75,7 @@ const StudentManagementViewModel = () => {
     {
       title: localStrings.GlobalLabels.Actions,
       key: "actions",
-      width: "10%",
+      width: "7%",
       align: "center",
       render: (_, record) => (
         <div className="flex gap-2 justify-center items-center">
@@ -88,23 +88,6 @@ const StudentManagementViewModel = () => {
               onClick={async () => {
                 await handlePredictDropout([record.studentId]);
               }}
-            />
-          </Tooltip>
-          <Tooltip title="Xem chi tiết">
-            <Button
-              shape="circle"
-              type="default"
-              className="flex justify-center items-center"
-              icon={<InfoCircleOutlined />}
-              //   onClick={async () => {
-              //     await window?.navigator?.clipboard?.writeText(record.url);
-              //     setModal(true);
-              //     getMessage(
-              //       localStrings.FileManagement.Placeholder.Url,
-              //       4,
-              //       "success"
-              //     );
-              //   }}
             />
           </Tooltip>
         </div>
