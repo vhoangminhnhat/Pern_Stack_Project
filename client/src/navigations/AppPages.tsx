@@ -10,6 +10,9 @@ class AppPages {
     ArticleFeature: lazy(
       () => import("pages/articleManagement/views/ArticleManagementFeature")
     ),
+    StudentManagementFeature: lazy(
+      () => import("pages/studentManagement/views/StudentManagementFeature")
+    ),
   };
 
   static getPage(key: string): any {

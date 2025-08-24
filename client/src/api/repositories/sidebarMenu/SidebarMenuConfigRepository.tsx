@@ -6,7 +6,9 @@ import {
 import { BaseApiResponseModel } from "api/baseApiResponseModel/BaseApiResponseModel";
 import { ReactNode } from "react";
 import { FaResearchgate } from "react-icons/fa";
+import { IoPersonOutline } from "react-icons/io5";
 import { MdArticle } from "react-icons/md";
+import { PiChalkboardTeacher } from "react-icons/pi";
 import { strings } from "utils/localizedStrings";
 import {
   MenuConfigModel,
@@ -50,37 +52,23 @@ export class SidebarMenuConfigRepository implements IConfigRepository {
                 <UserOutlined />,
                 []
               ),
-              // new MenuConfigModel(
-              //   localStrings?.TestSidebar?.Personal?.TrainingProcess,
-              //   "/personal/training-process",
-              //   "TraningProcessFeature",
-              //   <MdModelTraining />,
-              //   []
-              // ),
             ]
           ),
-          // new MenuConfigModel(
-          //   localStrings?.TestSidebar?.Teachings?.Main,
-          //   "/teachings",
-          //   "teachings",
-          //   <PiChalkboardTeacher />,
-          //   [
-          //     new MenuConfigModel(
-          //       localStrings?.TestSidebar?.Teachings?.Classes,
-          //       "/teachings/classes",
-          //       "ClassFeature",
-          //       <MdClass />,
-          //       []
-          //     ),
-          //     new MenuConfigModel(
-          //       localStrings?.TestSidebar?.Teachings.Instruction,
-          //       "/teachings/instruction",
-          //       "InstructionFeature",
-          //       <FaGuilded />,
-          //       []
-          //     ),
-          //   ]
-          // ),
+          new MenuConfigModel(
+            localStrings?.TestSidebar?.Teachings?.Main,
+            "/teachings",
+            "teachings",
+            <PiChalkboardTeacher />,
+            [
+              new MenuConfigModel(
+                localStrings?.StudentManagement?.Main,
+                "/teachings/students",
+                "StudentManagementFeature",
+                <IoPersonOutline />,
+                []
+              ),
+            ]
+          ),
           new MenuConfigModel(
             localStrings?.TestSidebar?.Research?.Main,
             "/research",
