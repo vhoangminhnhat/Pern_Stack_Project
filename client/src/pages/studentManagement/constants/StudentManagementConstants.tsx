@@ -1,9 +1,26 @@
 import { ColumnsType } from "antd/es/table";
 import { StudentManagementResponseModel } from "api/repositories/studentManagement/model/StudentManagementResponseModel";
 import { FilterAttributes } from "components/generalComponents/filterComponents/model/FilterComponentsModel";
+import moment from "moment";
 import { strings } from "utils/localizedStrings";
 
 export class StudentManagementConstants {
+  private static getBoolean(localStrings: typeof strings, value: boolean) {
+    if (value == true) {
+      return (
+        <span className="text-green-600 font-bold">
+          {localStrings.GlobalLabels.Yes}
+        </span>
+      );
+    } else {
+      return (
+        <span className="text-red-700 font-bold">
+          {localStrings.GlobalLabels.No}
+        </span>
+      );
+    }
+  }
+
   static mainColumns(localStrings: typeof strings) {
     return Object.entries(localStrings.StudentManagement.Labels)?.map(
       ([key, val]) => {
@@ -15,6 +32,12 @@ export class StudentManagementConstants {
           ellipsis: {
             showTitle: false,
           },
+          render: (text) =>
+            key === "birthDate"
+              ? moment(text).format("DD/MM/YYYY HH:mm:ss")
+              : key === "debtor"
+              ? this.getBoolean(localStrings, text)
+              : text,
         };
       }
     ) as ColumnsType<StudentManagementResponseModel>;

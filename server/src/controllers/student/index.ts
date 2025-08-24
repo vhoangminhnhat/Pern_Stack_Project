@@ -105,12 +105,43 @@ export class StudentController {
         unpassedCourses,
       } = req.body;
 
+      // Validate numeric fields
+      if (curricularUnits1stSemGrade && (curricularUnits1stSemGrade < 0 || curricularUnits1stSemGrade > 20)) {
+        return res.status(400).json({
+          error: "First semester grade must be between 0 and 20",
+        });
+      }
+
+      if (curricularUnits2ndSemGrade && (curricularUnits2ndSemGrade < 0 || curricularUnits2ndSemGrade > 20)) {
+        return res.status(400).json({
+          error: "Second semester grade must be between 0 and 20",
+        });
+      }
+
+      if (averageGrade && (averageGrade < 0 || averageGrade > 20)) {
+        return res.status(400).json({
+          error: "Average grade must be between 0 and 20",
+        });
+      }
+
+      // Convert birthDate string to Date object if provided
+      let birthDateObj: Date | undefined = undefined;
+      if (birthDate) {
+        const parsedDate = new Date(birthDate);
+        if (isNaN(parsedDate.getTime())) {
+          return res.status(400).json({
+            error: "Invalid birthDate format. Please use YYYY-MM-DD format.",
+          });
+        }
+        birthDateObj = parsedDate;
+      }
+
       const student = await prisma.student.create({
         data: {
           studentId,
           fullName,
           gender,
-          birthDate,
+          birthDate: birthDateObj,
           curricularUnits1stSemEnrolled: curricularUnits1stSemEnrolled || 0,
           curricularUnits1stSemApproved: curricularUnits1stSemApproved || 0,
           curricularUnits1stSemGrade: curricularUnits1stSemGrade || 0.0,
@@ -155,12 +186,43 @@ export class StudentController {
         unpassedCourses,
       } = req.body;
 
+      // Validate numeric fields
+      if (curricularUnits1stSemGrade && (curricularUnits1stSemGrade < 0 || curricularUnits1stSemGrade > 20)) {
+        return res.status(400).json({
+          error: "First semester grade must be between 0 and 20",
+        });
+      }
+
+      if (curricularUnits2ndSemGrade && (curricularUnits2ndSemGrade < 0 || curricularUnits2ndSemGrade > 20)) {
+        return res.status(400).json({
+          error: "Second semester grade must be between 0 and 20",
+        });
+      }
+
+      if (averageGrade && (averageGrade < 0 || averageGrade > 20)) {
+        return res.status(400).json({
+          error: "Average grade must be between 0 and 20",
+        });
+      }
+
+      // Convert birthDate string to Date object if provided
+      let birthDateObj: Date | undefined = undefined;
+      if (birthDate) {
+        const parsedDate = new Date(birthDate);
+        if (isNaN(parsedDate.getTime())) {
+          return res.status(400).json({
+            error: "Invalid birthDate format. Please use YYYY-MM-DD format.",
+          });
+        }
+        birthDateObj = parsedDate;
+      }
+
       const student = await prisma.student.update({
         where: { id },
         data: {
           fullName,
           gender,
-          birthDate,
+          birthDate: birthDateObj,
           curricularUnits1stSemEnrolled,
           curricularUnits1stSemApproved,
           curricularUnits1stSemGrade,

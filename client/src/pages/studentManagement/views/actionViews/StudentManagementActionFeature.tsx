@@ -1,11 +1,20 @@
-import { Button, DatePicker, Form, Input, InputNumber, Modal, Select, Switch } from "antd";
-import { useEffect, useState } from "react";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Select,
+  Switch,
+} from "antd";
 import { CreateStudentResponseModel } from "api/repositories/studentManagement/model/create/CreateStudentResponseModel";
 import { defaultStudentManagementRepository } from "api/repositories/studentManagement/StudentManagementRepository";
-import { IStudentManagementAction } from "pages/studentManagement/interface/IStudentManagement";
-import { getMessage } from "utils/helpersInTs/helpersInTs";
 import { AuthenticationContext } from "context/AuthenticationContext";
 import dayjs from "dayjs";
+import { IStudentManagementAction } from "pages/studentManagement/interface/IStudentManagement";
+import { useEffect, useState } from "react";
+import { getMessage } from "utils/helpersInTs/helpersInTs";
 
 const StudentManagementActionFeature = (props: IStudentManagementAction) => {
   const { open, onClose, onSuccess } = props;
@@ -65,10 +74,19 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
     <Modal
       title={localStrings.StudentManagement.CreateStudent}
       open={open}
+      centered
       onCancel={handleCancel}
       footer={null}
+      styles={{
+        body: {
+          overflowY: "auto",
+          maxHeight: "calc(100vh - 110px)",
+          scrollbarWidth: "none",
+          overflowX: "hidden",
+        },
+      }}
       width={800}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form
         form={form}
@@ -98,48 +116,89 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
               {localStrings.StudentManagement.Sections.BasicInfo}
             </h3>
           </div>
-          
+
           <Form.Item
             label={localStrings.StudentManagement.Labels.studentId}
             name="studentId"
             rules={[
-              { required: true, message: `Please enter ${localStrings.StudentManagement.Labels.studentId.toLowerCase()}` },
-              { min: 3, message: "Student ID must be at least 3 characters" }
+              {
+                required: true,
+                message: `Please enter ${localStrings.StudentManagement.Labels.studentId.toLowerCase()}`,
+              },
+              { min: 3, message: "Student ID must be at least 3 characters" },
             ]}
           >
-            <Input placeholder={localStrings.StudentManagement.Placeholders.enterStudentId} />
+            <Input
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterStudentId
+              }
+            />
           </Form.Item>
 
           <Form.Item
             label={localStrings.StudentManagement.Labels.fullName}
             name="fullName"
             rules={[
-              { required: true, message: `Please enter ${localStrings.StudentManagement.Labels.fullName.toLowerCase()}` },
-              { min: 2, message: "Full name must be at least 2 characters" }
+              {
+                required: true,
+                message: `Please enter ${localStrings.StudentManagement.Labels.fullName.toLowerCase()}`,
+              },
+              { min: 2, message: "Full name must be at least 2 characters" },
             ]}
           >
-            <Input placeholder={localStrings.StudentManagement.Placeholders.enterFullName} />
+            <Input
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterFullName
+              }
+            />
           </Form.Item>
 
           <Form.Item
             label={localStrings.StudentManagement.Labels.gender}
             name="gender"
-            rules={[{ required: true, message: `Please select ${localStrings.StudentManagement.Labels.gender.toLowerCase()}` }]}
+            rules={[
+              {
+                required: true,
+                message: `Please select ${localStrings.StudentManagement.Labels.gender.toLowerCase()}`,
+              },
+            ]}
           >
-            <Select placeholder={localStrings.StudentManagement.Placeholders.selectGender}>
-              <Select.Option value="male">{localStrings.GlobalLabels.Male}</Select.Option>
-              <Select.Option value="female">{localStrings.GlobalLabels.Female}</Select.Option>
+            <Select
+              placeholder={
+                localStrings.StudentManagement.Placeholders.selectGender
+              }
+            >
+              <Select.Option value="male">
+                {localStrings.GlobalLabels.Male}
+              </Select.Option>
+              <Select.Option value="female">
+                {localStrings.GlobalLabels.Female}
+              </Select.Option>
             </Select>
           </Form.Item>
 
           <Form.Item
             label={localStrings.StudentManagement.Labels.birthDate}
             name="birthDate"
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (value && !dayjs(value).isValid()) {
+                    return Promise.reject(new Error('Please enter a valid date'));
+                  }
+                  return Promise.resolve();
+                }
+              }
+            ]}
           >
             <DatePicker 
               style={{ width: '100%' }} 
               placeholder={localStrings.StudentManagement.Placeholders.selectBirthDate}
               format="YYYY-MM-DD"
+              disabledDate={(current) => {
+                // Disable future dates
+                return current && current > dayjs().endOf('day');
+              }}
             />
           </Form.Item>
 
@@ -151,40 +210,59 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
           </div>
 
           <Form.Item
-            label={localStrings.StudentManagement.Labels.curricularUnits1stSemEnrolled}
+            label={
+              localStrings.StudentManagement.Labels
+                .curricularUnits1stSemEnrolled
+            }
             name="curricularUnits1stSemEnrolled"
           >
-            <InputNumber 
-              min={0} 
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterUnitsEnrolled}
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterUnitsEnrolled
+              }
             />
           </Form.Item>
 
           <Form.Item
-            label={localStrings.StudentManagement.Labels.curricularUnits1stSemApproved}
+            label={
+              localStrings.StudentManagement.Labels
+                .curricularUnits1stSemApproved
+            }
             name="curricularUnits1stSemApproved"
           >
-            <InputNumber 
-              min={0} 
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterUnitsApproved}
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterUnitsApproved
+              }
             />
           </Form.Item>
 
           <Form.Item
-            label={localStrings.StudentManagement.Labels.curricularUnits1stSemGrade}
+            label={
+              localStrings.StudentManagement.Labels.curricularUnits1stSemGrade
+            }
             name="curricularUnits1stSemGrade"
             rules={[
-              { type: 'number', min: 0, max: 20, message: 'Grade must be between 0 and 20' }
+              {
+                type: "number",
+                min: 0,
+                max: 20,
+                message: "Grade must be between 0 and 20",
+              },
             ]}
           >
-            <InputNumber 
-              min={0} 
-              max={20} 
+            <InputNumber
+              min={0}
+              max={20}
               step={0.1}
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterGrade}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterGrade
+              }
             />
           </Form.Item>
 
@@ -196,40 +274,59 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
           </div>
 
           <Form.Item
-            label={localStrings.StudentManagement.Labels.curricularUnits2ndSemEnrolled}
+            label={
+              localStrings.StudentManagement.Labels
+                .curricularUnits2ndSemEnrolled
+            }
             name="curricularUnits2ndSemEnrolled"
           >
-            <InputNumber 
-              min={0} 
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterUnitsEnrolled}
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterUnitsEnrolled
+              }
             />
           </Form.Item>
 
           <Form.Item
-            label={localStrings.StudentManagement.Labels.curricularUnits2ndSemApproved}
+            label={
+              localStrings.StudentManagement.Labels
+                .curricularUnits2ndSemApproved
+            }
             name="curricularUnits2ndSemApproved"
           >
-            <InputNumber 
-              min={0} 
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterUnitsApproved}
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterUnitsApproved
+              }
             />
           </Form.Item>
 
           <Form.Item
-            label={localStrings.StudentManagement.Labels.curricularUnits2ndSemGrade}
+            label={
+              localStrings.StudentManagement.Labels.curricularUnits2ndSemGrade
+            }
             name="curricularUnits2ndSemGrade"
             rules={[
-              { type: 'number', min: 0, max: 20, message: 'Grade must be between 0 and 20' }
+              {
+                type: "number",
+                min: 0,
+                max: 20,
+                message: "Grade must be between 0 and 20",
+              },
             ]}
           >
-            <InputNumber 
-              min={0} 
-              max={20} 
+            <InputNumber
+              min={0}
+              max={20}
               step={0.1}
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterGrade}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterGrade
+              }
             />
           </Form.Item>
 
@@ -267,10 +364,12 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
             label={localStrings.StudentManagement.Labels.totalEnrolled}
             name="totalEnrolled"
           >
-            <InputNumber 
-              min={0} 
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterTotalEnrolled}
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterTotalEnrolled
+              }
             />
           </Form.Item>
 
@@ -278,10 +377,12 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
             label={localStrings.StudentManagement.Labels.totalApproved}
             name="totalApproved"
           >
-            <InputNumber 
-              min={0} 
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterTotalApproved}
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterTotalApproved
+              }
             />
           </Form.Item>
 
@@ -289,10 +390,12 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
             label={localStrings.StudentManagement.Labels.totalFailed}
             name="totalFailed"
           >
-            <InputNumber 
-              min={0} 
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterTotalFailed}
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterTotalFailed
+              }
             />
           </Form.Item>
 
@@ -300,15 +403,22 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
             label={localStrings.StudentManagement.Labels.averageGrade}
             name="averageGrade"
             rules={[
-              { type: 'number', min: 0, max: 20, message: 'Grade must be between 0 and 20' }
+              {
+                type: "number",
+                min: 0,
+                max: 20,
+                message: "Grade must be between 0 and 20",
+              },
             ]}
           >
-            <InputNumber 
-              min={0} 
-              max={20} 
+            <InputNumber
+              min={0}
+              max={20}
               step={0.1}
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterAverageGrade}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterAverageGrade
+              }
             />
           </Form.Item>
 
@@ -316,10 +426,12 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
             label={localStrings.StudentManagement.Labels.unpassedCourses}
             name="unpassedCourses"
           >
-            <InputNumber 
-              min={0} 
-              style={{ width: '100%' }} 
-              placeholder={localStrings.StudentManagement.Placeholders.enterUnpassedCourses}
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              placeholder={
+                localStrings.StudentManagement.Placeholders.enterUnpassedCourses
+              }
             />
           </Form.Item>
         </div>
@@ -329,9 +441,9 @@ const StudentManagementActionFeature = (props: IStudentManagementAction) => {
           <Button onClick={handleCancel}>
             {localStrings.GlobalLabels.Cancel}
           </Button>
-          <Button 
-            type="primary" 
-            htmlType="submit" 
+          <Button
+            type="primary"
+            htmlType="submit"
             loading={loading}
             className="bg-blue-500 hover:bg-blue-600"
           >

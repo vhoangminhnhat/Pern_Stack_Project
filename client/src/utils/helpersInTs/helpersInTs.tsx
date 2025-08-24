@@ -179,7 +179,7 @@ export const getStatus = (value: number, localStrings: typeof strings) => {
   }
 };
 
-export const statusForContent = (value: number) => {
+export const statusForContent = (value: number | boolean) => {
   switch (value) {
     case 0:
       return <span className="text-green-600 font-bold">Hoạt động</span>;

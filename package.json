@@ -4,7 +4,9 @@
   "description": "PERN project, using NodeJS, ExpressTS, ReactTS and Postgres",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --watch server/src --exec ts-node server/src/index.ts"
+    "dev": "nodemon --watch server/src --exec \"node --loader ts-node/esm server/src/index.ts\"",
+    "build": "tsc",
+    "start": "node server/dist/index.js"
   },
   "type": "module",
   "keywords": [],

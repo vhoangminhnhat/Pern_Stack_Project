@@ -75,7 +75,7 @@ const StudentManagementViewModel = () => {
     {
       title: localStrings.GlobalLabels.Actions,
       key: "actions",
-      width: "13%",
+      width: "10%",
       align: "center",
       render: (_, record) => (
         <div className="flex gap-2 justify-center items-center">
