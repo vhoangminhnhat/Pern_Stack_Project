@@ -34,7 +34,7 @@ const StudentManagementFeature = () => {
     handleSearch,
     handleTableChange,
     setDropoutPredictionModal,
-    handleImportExcelForDropout,
+    handleImportFileForDropout,
     handleExportDropoutData,
     createStudentModal,
     setCreateStudentModal,
@@ -90,8 +90,12 @@ const StudentManagementFeature = () => {
                       file.type ===
                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
                       file.type === "application/vnd.ms-excel";
-                    if (!isExcel) {
-                      message.error("You can only upload Excel files!");
+                    const isCsv = file.type === "text/csv";
+
+                    if (!isExcel && !isCsv) {
+                      message.error(
+                        "You can only upload Excel (.xlsx, .xls) or CSV files!"
+                      );
                       return false;
                     }
                     const isLt10M = file.size / 1024 / 1024 < 10;
@@ -105,7 +109,7 @@ const StudentManagementFeature = () => {
                     setFileList(fileList);
                     if (fileList.length > 0 && fileList[0].originFileObj) {
                       try {
-                        await handleImportExcelForDropout(
+                        await handleImportFileForDropout(
                           fileList[0].originFileObj
                         );
                         setFileList([]);
@@ -116,14 +120,14 @@ const StudentManagementFeature = () => {
                   }}
                   fileList={fileList}
                   maxCount={1}
-                  accept=".xlsx,.xls"
+                  accept=".xlsx,.xls,.csv"
                 >
                   <Button
                     icon={<UploadOutlined />}
                     type="primary"
                     className="bg-blue-500 hover:bg-blue-600"
                   >
-                    Upload Excel for Dropout Prediction
+                    Upload Excel/CSV for Dropout Prediction
                   </Button>
                 </Upload>
 

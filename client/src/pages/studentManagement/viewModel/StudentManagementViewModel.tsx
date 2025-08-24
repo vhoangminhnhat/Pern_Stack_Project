@@ -149,7 +149,7 @@ const StudentManagementViewModel = () => {
     }
   };
 
-  const handleImportExcelForDropout = async (file: File) => {
+  const handleImportFileForDropout = async (file: File) => {
     try {
       setDropoutPredictionLoading(true);
       const formData = new FormData();
@@ -168,11 +168,11 @@ const StudentManagementViewModel = () => {
         }));
         setDropoutPredictionResults(results);
         setDropoutPredictionModal(true);
-        getMessage("Excel file processed successfully", 4, "success");
+        getMessage("File processed successfully", 4, "success");
         await fetchList(paramsExport);
       }
     } catch (error) {
-      getMessage("Failed to process Excel file", 4, "error");
+      getMessage("Failed to process file", 4, "error");
     } finally {
       setDropoutPredictionLoading(false);
     }
@@ -225,7 +225,7 @@ const StudentManagementViewModel = () => {
     handleTableChange,
     detailInfo,
     handlePredictDropout,
-    handleImportExcelForDropout,
+    handleImportFileForDropout,
     handleExportDropoutData,
     dropoutPredictionModal,
     setDropoutPredictionModal,

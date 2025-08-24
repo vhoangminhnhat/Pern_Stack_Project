@@ -2,6 +2,7 @@ import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { Modal, Table, Tag, Typography } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { DropoutPredictionResponseModel } from "api/repositories/studentManagement/model/dropoutPrediction/DropoutPredictionResponseModel";
+import { AuthenticationContext } from "context/AuthenticationContext";
 
 const { Title, Text } = Typography;
 
@@ -18,21 +19,25 @@ const DropoutPredictionModal: React.FC<IDropoutPredictionModal> = ({
   results,
   loading = false,
 }) => {
+  const { localStrings } = AuthenticationContext();
+  const labels = localStrings.StudentManagement.Labels;
+  const sections = localStrings.StudentManagement.Sections;
+
   const columns: ColumnsType<DropoutPredictionResponseModel> = [
     {
-      title: "Student ID",
+      title: labels.studentId,
       dataIndex: "studentId",
       key: "studentId",
       width: 120,
     },
     {
-      title: "Full Name",
+      title: labels.fullName,
       dataIndex: "fullName",
       key: "fullName",
       width: 200,
     },
     {
-      title: "Dropout Prediction",
+      title: labels.dropoutPrediction || "Dropout Prediction",
       dataIndex: "dropoutPrediction",
       key: "dropoutPrediction",
       width: 150,
@@ -44,12 +49,14 @@ const DropoutPredictionModal: React.FC<IDropoutPredictionModal> = ({
             prediction === 1 ? <CloseCircleOutlined /> : <CheckCircleOutlined />
           }
         >
-          {prediction === 1 ? "High Risk" : "Low Risk"}
+          {prediction === 1
+            ? labels.highRisk || "High Risk"
+            : labels.lowRisk || "Low Risk"}
         </Tag>
       ),
     },
     {
-      title: "Prediction Date",
+      title: labels.predictionDate || "Prediction Date",
       dataIndex: "predictionDate",
       key: "predictionDate",
       width: 150,
@@ -76,19 +83,22 @@ const DropoutPredictionModal: React.FC<IDropoutPredictionModal> = ({
     <Modal
       title={
         <div className="flex items-center gap-2 text-xl font-semibold">
-          <span>Dropout Prediction Results</span>
+          <span>
+            {sections.dropoutPredictionResults || "Dropout Prediction Results"}
+          </span>
         </div>
       }
       open={open}
       centered
+      destroyOnHidden
       onCancel={onClose}
       footer={null}
-      width={900}
+      width={1100}
       className="rounded-xl"
       styles={{
         body: {
           overflowY: "auto",
-          maxHeight: "calc(100vh - 200px)",
+          maxHeight: "calc(100vh - 140px)",
           scrollbarWidth: "thin",
           overflowX: "hidden",
         },
@@ -103,26 +113,32 @@ const DropoutPredictionModal: React.FC<IDropoutPredictionModal> = ({
         <div className="grid grid-cols-4 gap-4 mb-4">
           <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
             <div className="text-blue-600 text-sm font-medium">
-              Total Students
+              {labels.totalStudents || "Total Students"}
             </div>
             <div className="text-2xl font-bold text-blue-700">
               {summary.total}
             </div>
           </div>
           <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-            <div className="text-green-600 text-sm font-medium">Low Risk</div>
+            <div className="text-green-600 text-sm font-medium">
+              {labels.lowRisk || "Low Risk"}
+            </div>
             <div className="text-2xl font-bold text-green-700">
               {summary.lowRisk}
             </div>
           </div>
           <div className="bg-red-50 p-4 rounded-lg border border-red-200">
-            <div className="text-red-600 text-sm font-medium">High Risk</div>
+            <div className="text-red-600 text-sm font-medium">
+              {labels.highRisk || "High Risk"}
+            </div>
             <div className="text-2xl font-bold text-red-700">
               {summary.highRisk}
             </div>
           </div>
           <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-            <div className="text-orange-600 text-sm font-medium">Risk Rate</div>
+            <div className="text-orange-600 text-sm font-medium">
+              {labels.riskRate || "Risk Rate"}
+            </div>
             <div className="text-2xl font-bold text-orange-700">
               {summary.highRiskPercentage}%
             </div>
@@ -130,7 +146,7 @@ const DropoutPredictionModal: React.FC<IDropoutPredictionModal> = ({
         </div>
         <div>
           <Title level={5} className="mb-3">
-            Detailed Results
+            {sections.detailedResults || "Detailed Results"}
           </Title>
           <Table
             columns={columns}
@@ -138,7 +154,7 @@ const DropoutPredictionModal: React.FC<IDropoutPredictionModal> = ({
             rowKey="studentId"
             pagination={false}
             loading={loading}
-            scroll={{ y: 300 }}
+            scroll={{ y: 400 }}
             size="small"
           />
         </div>
@@ -146,14 +162,10 @@ const DropoutPredictionModal: React.FC<IDropoutPredictionModal> = ({
         {summary.highRisk > 0 && (
           <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
             <Title level={5} className="text-yellow-700 mb-2">
-              ⚠️ Risk Analysis
+              {sections?.riskAnalysis || "⚠️ Risk Analysis"}
             </Title>
             <Text className="text-yellow-700">
-              {summary.highRisk} out of {summary.total} students (
-              {summary.highRiskPercentage}%) are identified as high-risk for
-              dropout. Consider implementing intervention strategies such as
-              academic counseling, mentoring programs, or additional support
-              services.
+              {`${summary.highRisk} out of ${summary.total} students (${summary.highRiskPercentage}%) are identified as high-risk for dropout. Consider implementing intervention strategies such as academic counseling, mentoring programs, or additional support services.`}
             </Text>
           </div>
         )}

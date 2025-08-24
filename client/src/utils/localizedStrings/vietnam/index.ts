@@ -686,6 +686,12 @@ export const VnLocalizedStrings = {
       totalFailed: "Tổng số môn học không đạt",
       averageGrade: "Điểm trung bình",
       unpassedCourses: "Số môn học không đạt",
+      highRisk: "Nguy cơ cao",
+      lowRisk: "Nguy cơ thấp",
+      riskRate: "Tỷ lệ rủi ro",
+      totalStudents: "Tổng số sinh viên",
+      dropoutPrediction: "Dự đoán rớt học",
+      predictionDate: "Ngày dự đoán",
     },
     Sections: {
       BasicInfo: "Thông tin cơ bản",
@@ -693,6 +699,11 @@ export const VnLocalizedStrings = {
       SecondSemester: "Học kỳ 2",
       FinancialStatus: "Tình trạng tài chính",
       AcademicSummary: "Tóm tắt học tập",
+      dropoutPredictionResults: "Kết quả dự đoán rớt học",
+      detailedResults: "Kết quả chi tiết",
+      riskAnalysis: "⚠️ Phân tích rủi ro",
+      riskAnalysisText:
+        "{highRisk} trong tổng số {total} sinh viên ({highRiskPercentage}%) được xác định là có nguy cơ rớt học cao. Hãy cân nhắc triển khai các biện pháp can thiệp như tư vấn học tập, chương trình cố vấn hoặc các dịch vụ hỗ trợ bổ sung.",
     },
     Placeholders: {
       enterStudentId: "Nhập mã sinh viên",

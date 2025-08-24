@@ -2,7 +2,6 @@ import axios from "axios";
 import { Request, Response } from "express";
 import FormData from "form-data";
 import path from "path";
-import XLSX from "xlsx";
 import prisma from "../../../database/db.js";
 import { ErrorModel } from "../../dtos/baseApiResponseModel/BaseApiResponseModel.js";
 import { getBaseErrorResponse } from "../../utils/helpers.js";
@@ -106,13 +105,19 @@ export class StudentController {
       } = req.body;
 
       // Validate numeric fields
-      if (curricularUnits1stSemGrade && (curricularUnits1stSemGrade < 0 || curricularUnits1stSemGrade > 20)) {
+      if (
+        curricularUnits1stSemGrade &&
+        (curricularUnits1stSemGrade < 0 || curricularUnits1stSemGrade > 20)
+      ) {
         return res.status(400).json({
           error: "First semester grade must be between 0 and 20",
         });
       }
 
-      if (curricularUnits2ndSemGrade && (curricularUnits2ndSemGrade < 0 || curricularUnits2ndSemGrade > 20)) {
+      if (
+        curricularUnits2ndSemGrade &&
+        (curricularUnits2ndSemGrade < 0 || curricularUnits2ndSemGrade > 20)
+      ) {
         return res.status(400).json({
           error: "Second semester grade must be between 0 and 20",
         });
@@ -187,13 +192,19 @@ export class StudentController {
       } = req.body;
 
       // Validate numeric fields
-      if (curricularUnits1stSemGrade && (curricularUnits1stSemGrade < 0 || curricularUnits1stSemGrade > 20)) {
+      if (
+        curricularUnits1stSemGrade &&
+        (curricularUnits1stSemGrade < 0 || curricularUnits1stSemGrade > 20)
+      ) {
         return res.status(400).json({
           error: "First semester grade must be between 0 and 20",
         });
       }
 
-      if (curricularUnits2ndSemGrade && (curricularUnits2ndSemGrade < 0 || curricularUnits2ndSemGrade > 20)) {
+      if (
+        curricularUnits2ndSemGrade &&
+        (curricularUnits2ndSemGrade < 0 || curricularUnits2ndSemGrade > 20)
+      ) {
         return res.status(400).json({
           error: "Second semester grade must be between 0 and 20",
         });
@@ -356,7 +367,6 @@ export class StudentController {
         });
       }
 
-      // Get student data for prediction
       const students = await prisma.student.findMany({
         where: {
           studentId: { in: studentIds },
@@ -387,7 +397,6 @@ export class StudentController {
         });
       }
 
-      // Format data for Python API
       const predictionData = students.map((student) => ({
         Gender: student.gender === "male" ? 0 : 1,
         "Curricular units 1st sem (enrolled)":
@@ -409,49 +418,106 @@ export class StudentController {
         unpassed_courses: student.unpassedCourses,
       }));
 
-      // Call Python API for prediction
-      const pythonApiUrl =
-        process.env.PYTHON_API_URL || "http://localhost:8000";
-      const response = await axios.post(
-        `${pythonApiUrl}/predict`,
-        {
-          data: predictionData,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+      try {
+        const pythonApiUrl = "http://127.0.0.1:8000";
+        if (!pythonApiUrl) {
+          console.warn(
+            "PYTHON_API_URL not configured, skipping dropout prediction"
+          );
+          return res.status(200).json({
+            data: students.map((student) => ({
+              studentId: student.studentId,
+              fullName: student.fullName,
+              dropoutPrediction: null,
+              predictionDate: null,
+              message: "Dropout prediction service not configured",
+            })),
+            message:
+              "Student data retrieved, but dropout prediction service is not configured",
+            warning:
+              "Set PYTHON_API_URL environment variable to enable dropout prediction",
+          });
         }
-      );
 
-      const predictionResult = response.data;
-      const predictions = predictionResult.predictions;
+        // Test connection first
+        try {
+          await axios.get(`${pythonApiUrl}/health`, { timeout: 5000 });
+        } catch (healthError: any) {
+          console.warn("Python API health check failed:", healthError.message);
+          return res.status(200).json({
+            data: students.map((student) => ({
+              studentId: student.studentId,
+              fullName: student.fullName,
+              dropoutPrediction: null,
+              predictionDate: null,
+              message: "Dropout prediction service not available",
+            })),
+            message:
+              "Student data retrieved, but dropout prediction service is not responding",
+            warning: `Python API at ${pythonApiUrl} is not responding. Check if the service is running.`,
+          });
+        }
 
-      // Update students with prediction results
-      const updatePromises = students.map((student, index) =>
-        prisma.student.update({
-          where: { studentId: student.studentId },
-          data: {
-            dropoutPrediction: predictions[index],
-            dropoutPredictionDate: new Date(),
+        const response = await axios.post(
+          `${pythonApiUrl}/predict`,
+          {
+            data: predictionData,
           },
-        })
-      );
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            timeout: 10000, // 10 second timeout
+          }
+        );
 
-      await Promise.all(updatePromises);
+        const predictionResult = response.data;
+        const predictions = predictionResult.predictions;
+        const updatePromises = students.map((student, index) =>
+          prisma.student.update({
+            where: { studentId: student.studentId },
+            data: {
+              dropoutPrediction: predictions[index],
+              dropoutPredictionDate: new Date(),
+            },
+          })
+        );
 
-      // Return results with student info
-      const results = students.map((student, index) => ({
-        studentId: student.studentId,
-        fullName: student.fullName,
-        dropoutPrediction: predictions[index],
-        predictionDate: new Date(),
-      }));
+        await Promise.all(updatePromises);
 
-      return res.status(200).json({
-        data: results,
-        message: "Dropout predictions completed successfully",
-      });
+        // Return results with student info
+        const results = students.map((student, index) => ({
+          studentId: student.studentId,
+          fullName: student.fullName,
+          dropoutPrediction: predictions[index],
+          predictionDate: new Date(),
+        }));
+
+        return res.status(200).json({
+          data: results,
+          message: "Dropout predictions completed successfully",
+        });
+      } catch (pythonApiError: any) {
+        console.warn(
+          "Python API not available for dropout prediction:",
+          pythonApiError.message
+        );
+
+        const results = students.map((student) => ({
+          studentId: student.studentId,
+          fullName: student.fullName,
+          dropoutPrediction: null,
+          predictionDate: null,
+          message: "Python API service not available for dropout prediction",
+        }));
+
+        return res.status(200).json({
+          data: results,
+          message:
+            "Student data retrieved, but dropout prediction service is not available",
+          warning: "Python API service at localhost:8000 is not running",
+        });
+      }
     } catch (error) {
       return getBaseErrorResponse(error as ErrorModel, res);
     }
@@ -496,63 +562,94 @@ export class StudentController {
           .json({ error: "file is required (field name: 'file')" });
       }
 
-      const pythonApiUrl =
-        process.env.PYTHON_API_URL || "http://localhost:8000";
+      const pythonApiUrl = "http://127.0.0.1:8000";
 
-      let fileBuffer = uploadedFile.buffer as Buffer;
-      let fileNameToSend = uploadedFile.originalname || "upload.csv";
-      const fileExtension = path.extname(fileNameToSend).toLowerCase();
-      if (fileExtension === ".xlsx" || fileExtension === ".xls") {
-        const workbook = XLSX.read(fileBuffer, { type: "buffer" });
-        const firstSheetName = workbook.SheetNames[0];
-        const firstSheet = workbook.Sheets[firstSheetName];
-        const csvString = XLSX.utils.sheet_to_csv(firstSheet);
-        fileBuffer = Buffer.from(csvString, "utf8");
-        fileNameToSend = "upload.csv";
+      // Check file extension to determine if we need to convert
+      const fileExtension = path.extname(uploadedFile.originalname || "").toLowerCase();
+      const supportedFormats = ['.csv', '.xlsx', '.xls'];
+      
+      if (!supportedFormats.includes(fileExtension)) {
+        return res.status(400).json({
+          error: "Unsupported file format. Please upload .csv, .xlsx, or .xls files"
+        });
       }
 
+      // Create form data with the original file
       const form = new FormData();
-      form.append("file", fileBuffer, {
-        filename: fileNameToSend,
-        contentType: "text/csv",
+      form.append("file", uploadedFile.buffer, {
+        filename: uploadedFile.originalname || "upload" + fileExtension,
+        contentType: uploadedFile.mimetype || "application/octet-stream",
       } as any);
 
-      const response = await axios.post(`${pythonApiUrl}/predict-file`, form, {
-        headers: {
-          ...form.getHeaders(),
-        },
-        maxBodyLength: Infinity,
-      });
+      try {
+        // Test connection first
+        try {
+          await axios.get(`${pythonApiUrl}/health`, { timeout: 5000 });
+        } catch (healthError: any) {
+          console.warn("Python API health check failed:", healthError.message);
+          return res.status(200).json({
+            data: [],
+            message:
+              "File uploaded, but dropout prediction service is not responding",
+            warning: `Python API at ${pythonApiUrl} is not responding. Check if the service is running.`,
+          });
+        }
 
-      const result = response.data as {
-        student_ids: (string | number)[];
-        predictions: number[];
-      };
-
-      // Try to persist predictions back to DB for existing students
-      const updatePromises = (result.student_ids || []).map((sid, index) => {
-        return prisma.student
-          .update({
-            where: { studentId: String(sid) },
-            data: {
-              dropoutPrediction: result.predictions[index],
-              dropoutPredictionDate: new Date(),
+        const response = await axios.post(
+          `${pythonApiUrl}/predict-file`,
+          form,
+          {
+            headers: {
+              ...form.getHeaders(),
             },
-          })
-          .catch(() => null);
-      });
+            maxBodyLength: Infinity,
+            timeout: 10000, // 10 second timeout
+          }
+        );
 
-      await Promise.all(updatePromises);
+        const result = response.data as {
+          student_ids: (string | number)[];
+          predictions: number[];
+        };
 
-      const combined = (result.student_ids || []).map((sid, index) => ({
-        studentId: String(sid),
-        dropoutPrediction: result.predictions[index],
-      }));
+        // Try to persist predictions back to DB for existing students
+        const updatePromises = (result.student_ids || []).map((sid, index) => {
+          return prisma.student
+            .update({
+              where: { studentId: String(sid) },
+              data: {
+                dropoutPrediction: result.predictions[index],
+                dropoutPredictionDate: new Date(),
+              },
+            })
+            .catch(() => null);
+        });
 
-      return res.status(200).json({
-        data: combined,
-        message: "Dropout predictions from file completed successfully",
-      });
+        await Promise.all(updatePromises);
+
+        const combined = (result.student_ids || []).map((sid, index) => ({
+          studentId: String(sid),
+          dropoutPrediction: result.predictions[index],
+        }));
+
+        return res.status(200).json({
+          data: combined,
+          message: "Dropout predictions from file completed successfully",
+        });
+      } catch (pythonApiError: any) {
+        // If Python API is not available, return a message indicating this
+        console.warn(
+          "Python API not available for dropout prediction from file:",
+          pythonApiError.message
+        );
+
+        return res.status(200).json({
+          data: [],
+          message:
+            "File uploaded, but dropout prediction service is not available",
+          warning: "Python API service at 127.0.0.1:8000 is not running",
+        });
+      }
     } catch (error) {
       return getBaseErrorResponse(error as ErrorModel, res);
     }

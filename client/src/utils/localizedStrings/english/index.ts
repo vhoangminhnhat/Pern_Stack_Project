@@ -691,6 +691,12 @@ export const engLocalizedStrings = {
       totalFailed: "Total failed",
       averageGrade: "Average grade",
       unpassedCourses: "Unpassed courses",
+      highRisk: "High Risk",
+      lowRisk: "Low Risk",
+      riskRate: "Risk Rate",
+      totalStudents: "Total Students",
+      dropoutPrediction: "Dropout Prediction",
+      predictionDate: "Prediction Date",
     },
     Sections: {
       BasicInfo: "Basic Information",
@@ -698,6 +704,10 @@ export const engLocalizedStrings = {
       SecondSemester: "Second Semester",
       FinancialStatus: "Financial Status",
       AcademicSummary: "Academic Summary",
+      dropoutPredictionResults: "Dropout Prediction Results",
+      detailedResults: "Detailed Results",
+      riskAnalysis: "⚠️ Risk Analysis",
+      riskAnalysisText: "{highRisk} out of {total} students ({highRiskPercentage}%) are identified as high-risk for dropout. Consider implementing intervention strategies such as academic counseling, mentoring programs, or additional support services.",
     },
     Placeholders: {
       enterStudentId: "Enter student ID",
