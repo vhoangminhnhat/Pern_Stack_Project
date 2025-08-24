@@ -3,12 +3,16 @@ import { BaseApiResponseModel } from "api/baseApiResponseModel/BaseApiResponseMo
 import client from "api/client";
 import { StudentManagementResponseModel } from "./model/StudentManagementResponseModel";
 import { StudentManagmentRequestModel } from "./model/StudentManagmentRequestModel";
+import { CreateStudentResponseModel } from "./model/create/CreateStudentResponseModel";
 import { DropoutPredictionResponseModel } from "./model/dropoutPrediction/DropoutPredictionResponseModel";
 
 export interface IStudentManagementRepository {
   getList(
     params: StudentManagmentRequestModel
   ): Promise<BaseApiResponseModel<Array<StudentManagementResponseModel>>>;
+  createStudent(
+    body: CreateStudentResponseModel
+  ): Promise<BaseApiResponseModel<CreateStudentResponseModel>>;
   predictDropout(params: {
     studentIds: string[];
   }): Promise<BaseApiResponseModel<Array<DropoutPredictionResponseModel>>>;
@@ -23,6 +27,12 @@ class StudentManagementImpl implements IStudentManagementRepository {
     params: StudentManagmentRequestModel
   ): Promise<BaseApiResponseModel<Array<StudentManagementResponseModel>>> {
     return await client?.get(STUDENT_MANAGEMENT?.LIST, params);
+  }
+
+  async createStudent(
+    body: CreateStudentResponseModel
+  ): Promise<BaseApiResponseModel<CreateStudentResponseModel>> {
+    return await client?.post(STUDENT_MANAGEMENT?.CREATE_STUDENT, body);
   }
 
   async predictDropout(params: {

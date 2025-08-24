@@ -32,6 +32,7 @@ const StudentManagementViewModel = () => {
       limit: 10,
     });
   const [filterForm] = Form.useForm();
+  const [actionForm] = Form.useForm();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [dropoutPredictionModal, setDropoutPredictionModal] = useState(false);
   const [dropoutPredictionResults, setDropoutPredictionResults] = useState<
@@ -39,6 +40,7 @@ const StudentManagementViewModel = () => {
   >([]);
   const [dropoutPredictionLoading, setDropoutPredictionLoading] =
     useState(false);
+  const [createStudentModal, setCreateStudentModal] = useState(false);
 
   const { localStrings } = AuthenticationContext();
 
@@ -193,6 +195,10 @@ const StudentManagementViewModel = () => {
     }
   };
 
+  const handleCreateStudentSuccess = async () => {
+    await fetchList(paramsExport);
+  };
+
   useEffect(() => {
     fetchList(paramsExport);
   }, []);
@@ -208,6 +214,7 @@ const StudentManagementViewModel = () => {
     summary,
     localStrings,
     fileList,
+    actionForm,
     setFileList,
     setSummaryModal,
     handleSearch,
@@ -224,6 +231,9 @@ const StudentManagementViewModel = () => {
     setDropoutPredictionModal,
     dropoutPredictionResults,
     dropoutPredictionLoading,
+    createStudentModal,
+    setCreateStudentModal,
+    handleCreateStudentSuccess,
   };
 };
 

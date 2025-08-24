@@ -1,4 +1,5 @@
 import {
+  PlusOutlined,
   RedoOutlined,
   SearchOutlined,
   UploadOutlined,
@@ -12,6 +13,7 @@ import DropoutPredictionModal from "components/modals/DropoutPredictionModal";
 import { Fragment } from "react";
 import { StudentManagementConstants } from "../constants/StudentManagementConstants";
 import StudentManagementViewModel from "../viewModel/StudentManagementViewModel";
+import StudentManagementActionFeature from "./actionViews/StudentManagementActionFeature";
 
 const StudentManagementFeature = () => {
   const {
@@ -34,13 +36,27 @@ const StudentManagementFeature = () => {
     setDropoutPredictionModal,
     handleImportExcelForDropout,
     handleExportDropoutData,
+    createStudentModal,
+    setCreateStudentModal,
+    handleCreateStudentSuccess,
   } = StudentManagementViewModel();
 
   return (
     <CardComponent
       data={{
         title: localStrings.StudentManagement.Main,
-        extra: <Fragment key={0}></Fragment>,
+        extra: (
+          <Fragment key={0}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setCreateStudentModal(true)}
+              className="bg-blue-500 hover:bg-blue-600"
+            >
+              {localStrings.StudentManagement.CreateStudent}
+            </Button>
+          </Fragment>
+        ),
         children: (
           <Form
             form={filterForm}
@@ -145,6 +161,11 @@ const StudentManagementFeature = () => {
               onClose={() => setDropoutPredictionModal(false)}
               results={dropoutPredictionResults}
               loading={dropoutPredictionLoading}
+            />
+            <StudentManagementActionFeature
+              open={createStudentModal}
+              onClose={() => setCreateStudentModal(false)}
+              onSuccess={handleCreateStudentSuccess}
             />
           </Form>
         ),

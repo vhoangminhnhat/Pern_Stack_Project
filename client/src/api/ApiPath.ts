@@ -125,6 +125,7 @@ export const STUDENT_MANAGEMENT = {
   PREDICT_DROPOUT: getV1Path("students/predict-dropout"),
   PREDICT_DROPOUT_FILE: getV1Path("students/predict-dropout-file"),
   DROPOUT_PREDICTION_DATA: getV1Path("students/dropout-prediction-data"),
+  CREATE_STUDENT: getV1Path("students/add-student"),
 };
 
 export const TOOLS = {
