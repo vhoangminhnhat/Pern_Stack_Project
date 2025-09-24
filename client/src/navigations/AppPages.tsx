@@ -13,6 +13,15 @@ class AppPages {
     StudentManagementFeature: lazy(
       () => import("pages/studentManagement/views/StudentManagementFeature")
     ),
+    TeacherManagementFeature: lazy(
+      () => import("pages/teacherManagement/views/TeacherManagementFeature")
+    ),
+    SubjectManagementFeature: lazy(
+      () => import("pages/subjectManagement/views/SubjectManagementFeature")
+    ),
+    ScheduleManagementFeature: lazy(
+      () => import("pages/scheduleManagement/views/ScheduleManagementFeature")
+    ),
   };
 
   static getPage(key: string): any {

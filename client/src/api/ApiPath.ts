@@ -128,6 +128,29 @@ export const STUDENT_MANAGEMENT = {
   CREATE_STUDENT: getV1Path("students/add-student"),
 };
 
+export const SCHEDULE_MANAGEMENT = {
+  LIST: getV1Path("schedules"),
+  CREATE_SCHEDULE: getV1Path("schedules"),
+  UPDATE_SCHEDULE: getV1Path("schedules"),
+  DELETE_SCHEDULE: getV1Path("schedules"),
+};
+
+export const TEACHER_MANAGEMENT = {
+  LIST: getV1Path("teachers"),
+  GET_TEACHER: getV1Path("teachers"),
+  CREATE_TEACHER: getV1Path("teachers"),
+  UPDATE_TEACHER: getV1Path("teachers"),
+  DELETE_TEACHER: getV1Path("teachers"),
+};
+
+export const SUBJECT_MANAGEMENT = {
+  LIST: getV1Path("subjects"),
+  GET_SUBJECT: getV1Path("subjects"),
+  CREATE_SUBJECT: getV1Path("subjects"),
+  UPDATE_SUBJECT: getV1Path("subjects"),
+  DELETE_SUBJECT: getV1Path("subjects"),
+};
+
 export const TOOLS = {
   VIDEO_GENERATION: getV1Path("tool/generate/videocall"),
 };

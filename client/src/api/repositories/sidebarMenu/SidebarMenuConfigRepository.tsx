@@ -2,6 +2,9 @@ import {
   BookOutlined,
   InfoCircleOutlined,
   UserOutlined,
+  CalendarOutlined,
+  TeamOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { BaseApiResponseModel } from "api/baseApiResponseModel/BaseApiResponseModel";
 import { ReactNode } from "react";
@@ -65,6 +68,27 @@ export class SidebarMenuConfigRepository implements IConfigRepository {
                 "/teachings/students",
                 "StudentManagementFeature",
                 <IoPersonOutline />,
+                []
+              ),
+              new MenuConfigModel(
+                localStrings?.TeacherManagement?.Main,
+                "/teachings/teachers",
+                "TeacherManagementFeature",
+                <TeamOutlined />,
+                []
+              ),
+              new MenuConfigModel(
+                localStrings?.SubjectManagement?.Main,
+                "/teachings/subjects",
+                "SubjectManagementFeature",
+                <FileTextOutlined />,
+                []
+              ),
+              new MenuConfigModel(
+                localStrings?.ScheduleManagement?.Main,
+                "/teachings/schedules",
+                "ScheduleManagementFeature",
+                <CalendarOutlined />,
                 []
               ),
             ]
