@@ -1,10 +1,16 @@
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Form, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { DefaultPagingModel } from "api/repositories/defaultPagingModel/DefaultPagingModel";
 import { ScheduleManagementResponseModel } from "api/repositories/scheduleManagement/model/ScheduleManagementResponseModel";
 import { defaultScheduleManagementRepository } from "api/repositories/scheduleManagement/ScheduleManagementRepository";
+import { SubjectManagementResponseModel } from "api/repositories/subjectManagement/model/SubjectManagementResponseModel";
+import { defaultSubjectManagementRepository } from "api/repositories/subjectManagement/SubjectManagementRepository";
+import { TeacherManagementResponseModel } from "api/repositories/teacherManagement/model/TeacherManagementResponseModel";
+import { defaultTeacherManagementRepository } from "api/repositories/teacherManagement/TeacherManagementRepository";
 import { AuthenticationContext } from "context/AuthenticationContext";
+import { SubjectRequestModel } from "pages/subjectManagement/viewModel/SubjectManagementViewModel";
+import { TeacherRequestModel } from "pages/teacherManagement/viewModel/TeacherManagementViewModel";
 import { useEffect, useState } from "react";
 import { getMessage, paramsChecking } from "utils/helpersInTs/helpersInTs";
 import { ScheduleManagementConstants } from "../constants/ScheduleManagementConstants";
@@ -22,9 +28,16 @@ const ScheduleManagementViewModel = () => {
   const [loading, setLoading] = useState(false);
   const [createScheduleModal, setCreateScheduleModal] = useState(false);
   const [editScheduleModal, setEditScheduleModal] = useState(false);
-  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleManagementResponseModel | null>(null);
+  const [selectedSchedule, setSelectedSchedule] =
+    useState<ScheduleManagementResponseModel | null>(null);
   const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
+  const [teacherList, setTeacherList] = useState<
+    Array<TeacherManagementResponseModel>
+  >([]);
+  const [subjectList, setSubjectList] = useState<
+    Array<SubjectManagementResponseModel>
+  >([]);
   const [paramsExport, setParamsExport] = useState<ScheduleRequestModel>({
     page: 0,
     limit: 10,
@@ -33,10 +46,34 @@ const ScheduleManagementViewModel = () => {
 
   const { localStrings } = AuthenticationContext();
 
+  const fetchSubject = async (params: SubjectRequestModel) => {
+    try {
+      const res = await defaultSubjectManagementRepository?.getList(params);
+      if (res?.data) {
+        setSubjectList(res?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchTeacher = async (params: TeacherRequestModel) => {
+    try {
+      const res = await defaultTeacherManagementRepository.getList(params);
+      if (res?.data) {
+        setTeacherList(res?.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const fetchList = async (params: ScheduleRequestModel) => {
     try {
       setLoading(true);
-      const response = await defaultScheduleManagementRepository.getList(params);
+      const response = await defaultScheduleManagementRepository.getList(
+        params
+      );
       if (response?.data) {
         setList(response.data);
       }
@@ -62,10 +99,18 @@ const ScheduleManagementViewModel = () => {
   const handleDeleteSchedule = async (id: string) => {
     try {
       await defaultScheduleManagementRepository.deleteSchedule(id);
-      getMessage(localStrings.ScheduleManagement.DeleteScheduleSuccess, 4, "success");
+      getMessage(
+        localStrings.ScheduleManagement.DeleteScheduleSuccess,
+        4,
+        "success"
+      );
       await fetchList(paramsExport);
     } catch (error) {
-      getMessage(localStrings.ScheduleManagement.DeleteScheduleFailed, 4, "error");
+      getMessage(
+        localStrings.ScheduleManagement.DeleteScheduleFailed,
+        4,
+        "error"
+      );
     }
   };
 
@@ -128,6 +173,8 @@ const ScheduleManagementViewModel = () => {
 
   useEffect(() => {
     fetchList(paramsExport);
+    fetchSubject({ page: 0, limit: 100 });
+    fetchTeacher({ page: 0, limit: 100 });
   }, []);
 
   return {
@@ -141,6 +188,8 @@ const ScheduleManagementViewModel = () => {
     createScheduleModal,
     editScheduleModal,
     selectedSchedule,
+    teacherList,
+    subjectList,
     setCreateScheduleModal,
     setEditScheduleModal,
     setSelectedSchedule,

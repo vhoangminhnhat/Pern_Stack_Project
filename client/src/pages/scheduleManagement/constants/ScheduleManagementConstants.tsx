@@ -1,5 +1,7 @@
 import { ColumnsType } from "antd/es/table";
 import { ScheduleManagementResponseModel } from "api/repositories/scheduleManagement/model/ScheduleManagementResponseModel";
+import { SubjectManagementResponseModel } from "api/repositories/subjectManagement/model/SubjectManagementResponseModel";
+import { TeacherManagementResponseModel } from "api/repositories/teacherManagement/model/TeacherManagementResponseModel";
 import { FilterAttributes } from "components/generalComponents/filterComponents/model/FilterComponentsModel";
 import moment from "moment";
 import { strings } from "utils/localizedStrings";
@@ -19,11 +21,17 @@ export class ScheduleManagementConstants {
           render: (text: any, record: ScheduleManagementResponseModel) => {
             switch (key) {
               case "startTime":
-                return text ? moment(text).format("DD/MM/YYYY HH:mm") : localStrings.GlobalLabels.NoInfo;
+                return text
+                  ? moment(text).format("DD/MM/YYYY HH:mm")
+                  : localStrings.GlobalLabels.NoInfo;
               case "endTime":
-                return text ? moment(text).format("DD/MM/YYYY HH:mm") : localStrings.GlobalLabels.NoInfo;
+                return text
+                  ? moment(text).format("DD/MM/YYYY HH:mm")
+                  : localStrings.GlobalLabels.NoInfo;
               case "teacher":
-                return record.teacher?.fullName || localStrings.GlobalLabels.NoInfo;
+                return (
+                  record.teacher?.fullName || localStrings.GlobalLabels.NoInfo
+                );
               case "subject":
                 return record.subject?.name || localStrings.GlobalLabels.NoInfo;
               default:
@@ -35,7 +43,11 @@ export class ScheduleManagementConstants {
     ) as ColumnsType<ScheduleManagementResponseModel>;
   }
 
-  static filters(localStrings: typeof strings) {
+  static filters(
+    localStrings: typeof strings,
+    teacherList: Array<TeacherManagementResponseModel>,
+    subjectList: Array<SubjectManagementResponseModel>
+  ) {
     return [
       {
         colLg: 8,
@@ -52,7 +64,16 @@ export class ScheduleManagementConstants {
         filterName: "teacherId",
         filterType: "select",
         labelName: localStrings.ScheduleManagement.Labels.teacher,
-        options: [], // Will be populated with teachers
+        options: [
+          {
+            label: localStrings?.GlobalLabels.All,
+            value: "",
+          },
+          ...teacherList?.map((item) => ({
+            label: item?.fullName,
+            value: item?.id,
+          })),
+        ],
         placeholder: localStrings.ScheduleManagement.Labels.teacher,
       },
       {
@@ -61,7 +82,16 @@ export class ScheduleManagementConstants {
         filterName: "subjectId",
         filterType: "select",
         labelName: localStrings.ScheduleManagement.Labels.subject,
-        options: [], // Will be populated with subjects
+        options: [
+          {
+            label: localStrings?.GlobalLabels.All,
+            value: "",
+          },
+          ...subjectList?.map((item) => ({
+            label: item?.name,
+            value: item?.id,
+          })),
+        ],
         placeholder: localStrings.ScheduleManagement.Labels.subject,
       },
     ] as FilterAttributes[];

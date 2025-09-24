@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { getMessage, paramsChecking } from "utils/helpersInTs/helpersInTs";
 import { SubjectManagementConstants } from "../constants/SubjectManagementConstants";
 
-interface SubjectRequestModel {
+export interface SubjectRequestModel {
   name?: string;
   code?: string;
   page?: number;

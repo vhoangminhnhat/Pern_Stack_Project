@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 import { getMessage, paramsChecking } from "utils/helpersInTs/helpersInTs";
 import { TeacherManagementConstants } from "../constants/TeacherManagementConstants";
 
-interface TeacherRequestModel {
+export interface TeacherRequestModel {
   fullName?: string;
   username?: string;
   gender?: string;

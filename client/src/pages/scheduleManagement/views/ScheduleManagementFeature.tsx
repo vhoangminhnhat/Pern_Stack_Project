@@ -1,8 +1,4 @@
-import {
-  PlusOutlined,
-  RedoOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, RedoOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Form, Row } from "antd";
 import CardComponent from "components/generalComponents/cardComponent/CardComponent";
 import { FilterButtons } from "components/generalComponents/filterButtons";
@@ -25,6 +21,8 @@ const ScheduleManagementFeature = () => {
     createScheduleModal,
     editScheduleModal,
     selectedSchedule,
+    teacherList,
+    subjectList,
     setCreateScheduleModal,
     setEditScheduleModal,
     setSelectedSchedule,
@@ -61,7 +59,11 @@ const ScheduleManagementFeature = () => {
           >
             <Row gutter={[2, 2]}>
               {FilterComponent(
-                ScheduleManagementConstants?.filters(localStrings)
+                ScheduleManagementConstants?.filters(
+                  localStrings,
+                  teacherList,
+                  subjectList
+                )
               )}
               {FilterButtons({
                 searchLg: 12,
@@ -95,12 +97,16 @@ const ScheduleManagementFeature = () => {
             </Row>
             <ScheduleManagementActionFeature
               open={createScheduleModal}
+              teacherList={teacherList}
+              subjectList={subjectList}
               onClose={() => setCreateScheduleModal(false)}
               onSuccess={handleCreateScheduleSuccess}
               isEdit={false}
             />
             <ScheduleManagementActionFeature
               open={editScheduleModal}
+              teacherList={teacherList}
+              subjectList={subjectList}
               onClose={() => {
                 setEditScheduleModal(false);
                 setSelectedSchedule(null);
