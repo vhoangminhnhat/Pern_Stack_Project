@@ -5,7 +5,7 @@ import { IoNewspaper } from "react-icons/io5";
 const { Title, Paragraph } = Typography;
 
 const ArticleManagementSummarize = (props: IArticleManagementSummarize) => {
-  const { summary, modal, setModal } = props?.data;
+  const { summary, modal, actionType, setActionType, setModal } = props?.data;
 
   return (
     <>
@@ -13,16 +13,26 @@ const ArticleManagementSummarize = (props: IArticleManagementSummarize) => {
         title={
           <div className="flex items-center gap-2 text-xl font-semibold">
             <IoNewspaper className="text-blue-500" />
-            <span>Article Summary</span>
+            <span>
+              {actionType === "relation"
+                ? "Related documents"
+                : "Article Summary"}
+            </span>
           </div>
         }
         open={modal}
         centered
-        onCancel={() => setModal(false)}
+        onCancel={() => {
+          setActionType("");
+          setModal(false);
+        }}
         footer={[
           <Button
             key="close"
-            onClick={() => setModal(false)}
+            onClick={() => {
+              setActionType("");
+              setModal(false);
+            }}
             className="bg-blue-500 hover:bg-blue-600 text-white border-none h-10 px-6 text-sm rounded-lg transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
           >
             Close

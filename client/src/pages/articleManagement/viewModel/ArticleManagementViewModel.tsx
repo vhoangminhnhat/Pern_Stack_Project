@@ -19,6 +19,7 @@ export const ArticleManagementViewModel = () => {
   const [detailInfo, setDetailInfo] =
     useState<ArticleManagementResponseModel | null>(null);
   const [summary, setSummary] = useState("");
+  const [actionType, setActionType] = useState<string>("");
   const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [paramsExport, setParamsExport] =
@@ -67,6 +68,7 @@ export const ArticleManagementViewModel = () => {
       if (response?.data) {
         setSummary(response.data.summary);
         setDetailInfo(response.data.article);
+        setActionType(type);
         setSummaryModal(true);
       }
     } catch (error) {
@@ -235,6 +237,8 @@ export const ArticleManagementViewModel = () => {
     setModal,
     fetchList,
     filterForm,
+    actionType,
+    setActionType,
     setPage,
     handleTableChange,
     detailInfo,

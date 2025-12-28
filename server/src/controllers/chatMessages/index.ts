@@ -96,6 +96,7 @@ export class ChatMessageController {
               .join("\n");
 
             prompt = `${prompt}\n\nDocument: ${file.originalname}\n\nContent:\n${fileContent}`;
+            console.log(prompt);
           } catch (error) {
             console.error("Error parsing PDF:", error);
             return getBaseErrorResponse(

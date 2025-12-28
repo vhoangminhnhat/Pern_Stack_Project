@@ -29,6 +29,8 @@ const ArticleManagementFeature = () => {
     handleSearch,
     summary,
     summaryModal,
+    actionType,
+    setActionType,
   } = ArticleManagementViewModel();
   return (
     <CardComponent
@@ -80,6 +82,8 @@ const ArticleManagementFeature = () => {
               data={{
                 modal: summaryModal,
                 summary,
+                actionType,
+                setActionType,
                 setModal: setSummaryModal,
               }}
             />

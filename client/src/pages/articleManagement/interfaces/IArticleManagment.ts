@@ -21,6 +21,8 @@ export interface IArticleManagementSummarize {
   data: {
     summary: string;
     modal: boolean;
+    actionType: string;
+    setActionType: Dispatch<SetStateAction<string>>;
     setModal: Dispatch<SetStateAction<boolean>>;
   };
 }
