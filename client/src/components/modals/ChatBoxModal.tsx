@@ -121,17 +121,17 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
       onCancel={close}
       className="p-3"
       centered
-      width={600}
+      width={700}
       styles={{
         body: {
           overflowY: "auto",
-          maxHeight: "calc(100vh - 140px)",
+          maxHeight: "calc(100vh - 120px)",
           scrollbarWidth: "thin",
           overflowX: "hidden",
         },
       }}
     >
-      <div className="flex flex-col h-[600px]">
+      <div className="flex flex-col h-[1000px]">
         <div className="flex-1 overflow-y-auto mb-4 space-y-4">
           {messages.map((message) => (
             <div
