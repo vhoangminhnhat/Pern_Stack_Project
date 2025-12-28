@@ -718,7 +718,7 @@ export const VnLocalizedStrings = {
       SecondSemester: "Học kỳ 2",
       FinancialStatus: "Tình trạng tài chính",
       AcademicSummary: "Tóm tắt học tập",
-      dropoutPredictionResults: "Kết quả dự đoán rớt học",
+      dropoutPredictionResults: "Kết quả dự đoán bỏ học",
       detailedResults: "Kết quả chi tiết",
       riskAnalysis: "⚠️ Phân tích rủi ro",
       riskAnalysisText:

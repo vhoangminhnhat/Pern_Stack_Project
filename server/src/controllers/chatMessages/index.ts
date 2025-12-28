@@ -82,7 +82,7 @@ export class ChatMessageController {
 
       let prompt =
         message ||
-        "Vui lòng phân tích tài liệu trên theo ngôn ngữ học thuật, tìm kiếm thêm một số tài liệu bằng tiếng Anh và tiếng Việt";
+        "Please analyze the above document in an academic style and search for additional relevant references in English or Vietnamese";
       let fileContent = "";
 
       if (file) {

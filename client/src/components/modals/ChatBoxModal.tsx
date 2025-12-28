@@ -190,7 +190,7 @@ const ChatBoxModal: React.FC<IChatBoxModal> = ({
             onChange={handleFileChange}
             maxCount={1}
             showUploadList={false}
-            accept=".pdf,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            accept=".pdf,application/pdf"
             customRequest={({ onSuccess }) => {
               setTimeout(() => {
                 onSuccess?.("ok");
