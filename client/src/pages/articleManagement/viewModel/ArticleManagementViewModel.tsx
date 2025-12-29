@@ -1,6 +1,7 @@
 import { CopyOutlined } from "@ant-design/icons";
 import { Button, Form, Tooltip } from "antd";
 import { ColumnsType } from "antd/es/table";
+import type { UploadFile } from "antd/es/upload/interface";
 import { defaultArticleManagementRepository } from "api/repositories/articleManagement/ArticleManagementRepository";
 import { ArticleManagementRequestModel } from "api/repositories/articleManagement/model/ArticleManagementRequestModel";
 import { ArticleManagementResponseModel } from "api/repositories/articleManagement/model/ArticleManagementResponseModel";
@@ -16,6 +17,7 @@ export const ArticleManagementViewModel = () => {
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false);
   const [summaryModal, setSummaryModal] = useState(false);
+  const [detailModal, setDetailModal] = useState(false);
   const [detailInfo, setDetailInfo] =
     useState<ArticleManagementResponseModel | null>(null);
   const [summary, setSummary] = useState("");
@@ -27,7 +29,12 @@ export const ArticleManagementViewModel = () => {
       page: 0,
       limit: 10,
     });
+  const [importFile, setImportFile] = useState<{
+    file: any[];
+    fileList?: UploadFile[];
+  }>({ file: [], fileList: [] });
   const [filterForm] = Form.useForm();
+  const [actionForm] = Form.useForm();
   const { localStrings } = AuthenticationContext();
 
   const fetchList = async (params: ArticleManagementRequestModel) => {
@@ -86,7 +93,10 @@ export const ArticleManagementViewModel = () => {
       );
       if (response?.data) {
         getMessage("Article created successfully", 4, "success");
-        setModal(false);
+        setDetailModal(false);
+        setDetailInfo(null);
+        actionForm.resetFields();
+        setImportFile({ file: [], fileList: [] });
         await fetchList({ page: 0, limit: pageSize });
       }
     } catch (error: any) {
@@ -109,7 +119,10 @@ export const ArticleManagementViewModel = () => {
       );
       if (response?.data) {
         getMessage("Article updated successfully", 4, "success");
-        setModal(false);
+        setDetailModal(false);
+        setDetailInfo(null);
+        actionForm.resetFields();
+        setImportFile({ file: [], fileList: [] });
         await fetchList({ page: 0, limit: pageSize });
       }
     } catch (error: any) {
@@ -152,6 +165,15 @@ export const ArticleManagementViewModel = () => {
       await createArticle(formData);
     } else if (action === "update" && detailInfo?.code) {
       await updateArticle(detailInfo.code, formData);
+    }
+  };
+
+  const handleUploadChange = (type: string) => (info: any) => {
+    if (type === "file") {
+      setImportFile({
+        file: info.fileList || [],
+        fileList: info.fileList || [],
+      });
     }
   };
 
@@ -243,6 +265,14 @@ export const ArticleManagementViewModel = () => {
     handleTableChange,
     detailInfo,
     handleActions,
+    setDetailInfo,
+    detailModal,
+    setDetailModal,
+    actionForm,
+    handleUploadChange,
+    importFile,
+    setImportFile,
+    modalLoading: loading,
   };
 };
 

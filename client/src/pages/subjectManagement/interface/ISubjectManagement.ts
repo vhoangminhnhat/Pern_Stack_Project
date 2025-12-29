@@ -5,3 +5,4 @@ export interface ISubjectManagementAction {
   subjectId?: string;
   isEdit?: boolean;
 }
+

@@ -1,15 +1,15 @@
 import { RedoOutlined, SearchOutlined } from "@ant-design/icons";
-import { Form, Row } from "antd";
+import { Button, Col, Form, Row } from "antd";
 import CardComponent from "components/generalComponents/cardComponent/CardComponent";
 import { FilterButtons } from "components/generalComponents/filterButtons";
 import { FilterComponent } from "components/generalComponents/filterComponents/FilterComponents";
 import TableComponent from "components/generalComponents/tableComponent/TableComponent";
 import { AuthenticationContext } from "context/AuthenticationContext";
-import { Fragment } from "react";
 import { ArticleManagementConstants } from "../constants/ArticleManagementConstants";
 import ArticleManagementViewModel from "../viewModel/ArticleManagementViewModel";
 import ArticleIFrame from "./actionViews/ArticleIFrame";
 import ArticleManagementSummarize from "./actionViews/ArticleManagementSummarize";
+import UploadArticleFeature from "./actionViews/UploadArticleFeature";
 
 const ArticleManagementFeature = () => {
   const { localStrings } = AuthenticationContext();
@@ -31,12 +31,22 @@ const ArticleManagementFeature = () => {
     summaryModal,
     actionType,
     setActionType,
+    detailInfo,
+    setDetailInfo,
+    handleActions,
+    detailModal,
+    setDetailModal,
+    actionForm,
+    handleUploadChange,
+    importFile,
+    setImportFile,
+    modalLoading,
   } = ArticleManagementViewModel();
   return (
     <CardComponent
       data={{
         title: localStrings.ArticleManagement.Main,
-        extra: <Fragment key={0}></Fragment>,
+        extra: null,
         children: (
           <Form
             form={filterForm}
@@ -49,10 +59,10 @@ const ArticleManagementFeature = () => {
                 ArticleManagementConstants?.filters(localStrings)
               )}
               {FilterButtons({
-                searchLg: 12,
+                searchLg: 8,
                 htmlType: "submit",
                 redoIcon: <RedoOutlined />,
-                redoLg: 12,
+                redoLg: 8,
                 searchIcon: <SearchOutlined />,
                 redoName: localStrings.GlobalLabels.Redo,
                 searchName: localStrings.GlobalLabels.Search,
@@ -63,6 +73,20 @@ const ArticleManagementFeature = () => {
                   await fetchList({ page: 0, limit: pageSize });
                 },
               })}
+              <Col span={24} lg={8}>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    setDetailInfo(null);
+                    actionForm.resetFields();
+                    setImportFile({ file: [], fileList: [] });
+                    setDetailModal(true);
+                  }}
+                  style={{ marginLeft: 8, width: "100%" }}
+                >
+                  {localStrings?.GlobalLabels?.Create || "Add Article"}
+                </Button>
+              </Col>
               <TableComponent
                 data={{
                   columns,
@@ -88,6 +112,19 @@ const ArticleManagementFeature = () => {
               }}
             />
             <ArticleIFrame data={{ modal, setModal }} />
+            <UploadArticleFeature
+              data={{
+                actionForm,
+                detailInfo: detailInfo || ({} as any),
+                detailModal,
+                handleActions,
+                handleUploadChange,
+                importFile,
+                modalLoading,
+                setDetailInfo,
+                setDetailModal,
+              }}
+            />
           </Form>
         ),
       }}

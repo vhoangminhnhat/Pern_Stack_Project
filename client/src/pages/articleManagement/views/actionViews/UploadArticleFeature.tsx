@@ -1,5 +1,15 @@
 import { InboxOutlined, LoadingOutlined } from "@ant-design/icons";
-import { Button, Col, Form, Modal, Row, Spin, Upload, message } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Spin,
+  Upload,
+  message,
+} from "antd";
 import type { UploadFile } from "antd/es/upload/interface";
 import ActionsComponent from "components/generalComponents/actionsComponent/ActionsComponent";
 import { AuthenticationContext } from "context/AuthenticationContext";
@@ -39,7 +49,8 @@ const UploadArticleFeature = (props: IUploadArticleFeature) => {
       return false;
     }
 
-    return true;
+    // Return false to prevent automatic upload - we handle upload via FormData on form submit
+    return false;
   };
 
   const handleFileChange = ({ fileList }: { fileList: UploadFile[] }) => {
@@ -95,37 +106,15 @@ const UploadArticleFeature = (props: IUploadArticleFeature) => {
                 info={detailInfo}
               />
               <Form.Item
-                label={localStrings.ArticleManagement.Labels.name}
-                name={"name"}
-                rules={[
-                  {
-                    required: true,
-                    message: localStrings.ArticleManagement.Labels.name,
-                  },
-                ]}
-                initialValue={detailInfo?.name}
-              >
-                <input className="ant-input w-full" />
-              </Form.Item>
-              <Form.Item
-                label={localStrings.ArticleManagement.Labels.code}
-                name={"code"}
-                rules={[
-                  {
-                    required: true,
-                    message: localStrings.ArticleManagement.Labels.code,
-                  },
-                ]}
-                initialValue={detailInfo?.code}
-              >
-                <input className="ant-input w-full" />
-              </Form.Item>
-              <Form.Item
                 label={localStrings.ArticleManagement.Labels.url}
                 name={"url"}
                 initialValue={detailInfo?.url}
               >
-                <input className="ant-input w-full" />
+                <Input
+                  placeholder={localStrings.ArticleManagement.Labels.url?.concat(
+                    "..."
+                  )}
+                />
               </Form.Item>
               <Form.Item
                 label={localStrings.ArticleManagement.Labels.file}
@@ -144,6 +133,7 @@ const UploadArticleFeature = (props: IUploadArticleFeature) => {
                   className="w-full"
                   onChange={handleFileChange}
                   beforeUpload={beforeUpload}
+                  accept=".pdf"
                   maxCount={1}
                   fileList={importFile?.fileList}
                 >

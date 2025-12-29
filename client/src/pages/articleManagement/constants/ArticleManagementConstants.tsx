@@ -85,7 +85,7 @@ export class ArticleManagementConstants {
   ) {
     const actionForms = [
       {
-        label: localStrings.FileManagement.Columns.Name,
+        label: localStrings.ArticleManagement.Labels.name,
         name: "name",
         type: "input",
         createFormRules: {
@@ -97,25 +97,25 @@ export class ArticleManagementConstants {
         pointerEvents: false,
         placeholder: localStrings.GlobalPlaceholder.Name,
       },
-      {
-        label: localStrings.FileManagement.Columns.Code,
-        name: "code",
-        type: "input",
-        createFormRules: {
-          stricted: true,
-          type: "string",
-          message: localStrings.GlobalPlaceholder.Code,
-        },
-        detailKey: "code",
-        pointerEvents: false,
-        placeholder: localStrings.GlobalPlaceholder.Code,
-      },
+      // {
+      //   label: localStrings.ArticleManagement.Labels.code,
+      //   name: "code",
+      //   type: "input",
+      //   createFormRules: {
+      //     stricted: true,
+      //     type: "string",
+      //     message: localStrings.GlobalPlaceholder.Code,
+      //   },
+      //   detailKey: "code",
+      //   pointerEvents: false,
+      //   placeholder: localStrings.GlobalPlaceholder.Code,
+      // },
       {
         label: localStrings.FileManagement.Columns.Type,
         name: "type",
         type: "select",
         createFormRules: {
-          stricted: false,
+          stricted: true,
           type: "string",
           message: localStrings.FileManagement.Placeholder.Type,
         },

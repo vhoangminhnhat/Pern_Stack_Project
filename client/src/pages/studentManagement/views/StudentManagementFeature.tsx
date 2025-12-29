@@ -4,13 +4,12 @@ import {
   SearchOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import { Button, Form, Row, Upload, message } from "antd";
+import { Button, Col, Form, Row, Upload, message } from "antd";
 import CardComponent from "components/generalComponents/cardComponent/CardComponent";
 import { FilterButtons } from "components/generalComponents/filterButtons";
 import { FilterComponent } from "components/generalComponents/filterComponents/FilterComponents";
 import TableComponent from "components/generalComponents/tableComponent/TableComponent";
 import DropoutPredictionModal from "components/modals/DropoutPredictionModal";
-import { Fragment } from "react";
 import { StudentManagementConstants } from "../constants/StudentManagementConstants";
 import StudentManagementViewModel from "../viewModel/StudentManagementViewModel";
 import StudentManagementActionFeature from "./actionViews/StudentManagementActionFeature";
@@ -45,18 +44,7 @@ const StudentManagementFeature = () => {
     <CardComponent
       data={{
         title: localStrings.StudentManagement.Main,
-        extra: (
-          <Fragment key={0}>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setCreateStudentModal(true)}
-              className="bg-blue-500 hover:bg-blue-600"
-            >
-              {localStrings.StudentManagement.CreateStudent}
-            </Button>
-          </Fragment>
-        ),
+        extra: null,
         children: (
           <Form
             form={filterForm}
@@ -69,10 +57,10 @@ const StudentManagementFeature = () => {
                 StudentManagementConstants?.filters(localStrings)
               )}
               {FilterButtons({
-                searchLg: 12,
+                searchLg: 8,
                 htmlType: "submit",
                 redoIcon: <RedoOutlined />,
-                redoLg: 12,
+                redoLg: 8,
                 searchIcon: <SearchOutlined />,
                 redoName: localStrings.GlobalLabels.Redo,
                 searchName: localStrings.GlobalLabels.Search,
@@ -83,6 +71,16 @@ const StudentManagementFeature = () => {
                   await fetchList({ page: 0, limit: pageSize });
                 },
               })}
+              <Col span={24} lg={8}>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setCreateStudentModal(true)}
+                  className="bg-blue-500 hover:bg-blue-600 w-full"
+                >
+                  {localStrings.StudentManagement.CreateStudent}
+                </Button>
+              </Col>
               <div className="col-span-12 lg:col-span-12 flex justify-end gap-2 mb-4">
                 <Upload
                   beforeUpload={(file) => {
