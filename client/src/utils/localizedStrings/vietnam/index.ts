@@ -1,6 +1,7 @@
 export const VnLocalizedStrings = {
   GlobalLabels: {
     All: "Tất cả",
+    OutOf: "trong tổng số",
     Logout: "Đăng xuất",
     PleaseWait: "Vui lòng đợi...",
     Status: "Trạng thái",
@@ -665,6 +666,7 @@ export const VnLocalizedStrings = {
   },
   StudentManagement: {
     Main: "Quản lý sinh viên",
+    Student: "sinh viên",
     CreateStudent: "Tạo sinh viên mới",
     CreateStudentSuccess: "Tạo sinh viên thành công",
     CreateStudentFailed: "Tạo sinh viên thất bại",
@@ -737,6 +739,10 @@ export const VnLocalizedStrings = {
       enterTotalFailed: "Nhập tổng số môn học không đạt",
       enterAverageGrade: "Nhập điểm trung bình",
       enterUnpassedCourses: "Nhập số môn học không đạt",
+    },
+    Message: {
+      DropoutAnalysis:
+        "được xác định là nhóm sinh viên có nguy cơ bỏ học cao. Do đó, cần xem xét áp dụng các chiến lược can thiệp phù hợp như tư vấn học tập, chương trình cố vấn học tập hoặc các dịch vụ hỗ trợ bổ sung.",
     },
   },
   ScheduleManagement: {

@@ -2,6 +2,7 @@ export const engLocalizedStrings = {
   GlobalLabels: {
     All: "All",
     Logout: "Log out",
+    OutOf: "out of",
     PleaseWait: "Please wait...",
     Status: "Status",
     Phone: "Phone Number",
@@ -670,6 +671,7 @@ export const engLocalizedStrings = {
   },
   StudentManagement: {
     Main: "Student Management",
+    Student: "students",
     CreateStudent: "Create New Student",
     CreateStudentSuccess: "Student created successfully",
     CreateStudentFailed: "Failed to create student",
@@ -743,6 +745,9 @@ export const engLocalizedStrings = {
       enterAverageGrade: "Enter average grade",
       enterUnpassedCourses: "Enter unpassed courses",
     },
+    Message: {
+      DropoutAnalysis: "are identified as high-risk for dropout. Consider implementing intervention strategies such as academic counseling, mentoring programs, or additional support services."
+    }
   },
   ScheduleManagement: {
     Main: "Schedule Management",

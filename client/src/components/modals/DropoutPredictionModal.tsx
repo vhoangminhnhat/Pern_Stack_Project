@@ -165,7 +165,7 @@ const DropoutPredictionModal: React.FC<IDropoutPredictionModal> = ({
               {sections?.riskAnalysis || "⚠️ Risk Analysis"}
             </Title>
             <Text className="text-yellow-700">
-              {`${summary.highRisk} out of ${summary.total} students (${summary.highRiskPercentage}%) are identified as high-risk for dropout. Consider implementing intervention strategies such as academic counseling, mentoring programs, or additional support services.`}
+              {`${summary.highRisk} ${localStrings.GlobalLabels.OutOf} ${summary.total} ${localStrings.StudentManagement.Student} (${summary.highRiskPercentage}%) ${localStrings.StudentManagement.Message.DropoutAnalysis}`}
             </Text>
           </div>
         )}
