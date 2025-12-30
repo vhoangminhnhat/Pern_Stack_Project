@@ -43,7 +43,7 @@ export class StudentManagementConstants {
           render: (text) =>
             key === "birthDate"
               ? !!text
-                ? moment(text).format("DD/MM/YYYY HH:mm:ss")
+                ? moment(text).format("DD/MM/YYYY")
                 : localStrings.GlobalLabels.NoInfo
               : key === "debtor"
               ? this.getBoolean(localStrings, text)
