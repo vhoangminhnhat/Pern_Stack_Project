@@ -302,6 +302,65 @@ export class ArticleController {
       return getBaseErrorResponse(error as ErrorModel, res);
     }
   }
+
+  async downloadFile(req: IGetUserInfo, res: Response) {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return getBaseErrorResponse(
+          { code: 401, message: "User not found or unauthorized" },
+          res
+        );
+      }
+
+      const { filename } = req.params;
+      if (!filename) {
+        return getBaseErrorResponse(
+          { code: 400, message: "Filename is required" },
+          res
+        );
+      }
+
+      const article = await prisma.article.findFirst({
+        where: {
+          file: filename,
+          userId: userId,
+        },
+      });
+
+      if (!article) {
+        return getBaseErrorResponse(
+          { code: 404, message: "File not found or access denied" },
+          res
+        );
+      }
+
+      const filePath = path.join(process.cwd(), "uploads", filename);
+      
+      if (!fs.existsSync(filePath)) {
+        return getBaseErrorResponse(
+          { code: 404, message: "File not found on server" },
+          res
+        );
+      }
+      const parts = filename.split("-");
+      const originalName = parts.slice(2).join("-");
+
+      res.download(filePath, originalName, (err) => {
+        if (err) {
+          console.error("Error downloading file:", err);
+          if (!res.headersSent) {
+            return getBaseErrorResponse(
+              { code: 500, message: "Error downloading file" },
+              res
+            );
+          }
+        }
+      });
+    } catch (error) {
+      return getBaseErrorResponse(error as ErrorModel, res);
+    }
+  }
 }
 
 const articleController = new ArticleController();
@@ -309,6 +368,7 @@ const articleController = new ArticleController();
 export const {
   createArticle,
   deleteArticle,
+  downloadFile,
   listArticles,
   summarizeArticle,
   updateArticle,

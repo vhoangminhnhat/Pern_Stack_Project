@@ -3,6 +3,7 @@ import multer from "multer";
 import {
   createArticle,
   deleteArticle,
+  downloadFile,
   listArticles,
   summarizeArticle,
   updateArticle,
@@ -50,6 +51,11 @@ articleRouter.get(
   "/summarize",
   protectedRoutes as any,
   summarizeArticle as any
+);
+articleRouter.get(
+  "/download/:filename",
+  protectedRoutes as any,
+  downloadFile as any
 );
 articleRouter.post(
   "/create",

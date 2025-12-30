@@ -117,6 +117,7 @@ export const ARTICLE_MANAGEMENT = {
   CREATE: getV1Path("article/create"),
   UPDATE: getV1Path("article/update"),
   DELETE: getV1Path("article/delete"),
+  DOWNLOAD: getV1Path("article/download"),
 };
 
 export const STUDENT_MANAGEMENT = {

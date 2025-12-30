@@ -177,8 +177,28 @@ export const ArticleManagementViewModel = () => {
     }
   };
 
+  const handleDownload = async (filename: string) => {
+    try {
+      const blob = await defaultArticleManagementRepository.downloadFile(filename);
+      const parts = filename.split("-");
+      const originalName = parts.slice(2).join("-");
+
+      const blobURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobURL;
+      link.download = originalName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobURL);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      getMessage("Failed to download file", 4, "error");
+    }
+  };
+
   const columns: ColumnsType<ArticleManagementResponseModel> = [
-    ...ArticleManagementConstants?.mainColumns(localStrings),
+    ...ArticleManagementConstants?.mainColumns(localStrings, handleDownload),
     {
       title: localStrings.GlobalLabels.Actions,
       key: "actions",
@@ -273,6 +293,7 @@ export const ArticleManagementViewModel = () => {
     importFile,
     setImportFile,
     modalLoading: loading,
+    handleDownload,
   };
 };
 

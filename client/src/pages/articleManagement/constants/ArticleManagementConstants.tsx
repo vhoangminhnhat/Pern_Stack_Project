@@ -11,7 +11,10 @@ import { typeList } from "pages/fileManagement/constants/FileManagementConstants
 import { strings } from "utils/localizedStrings";
 
 export class ArticleManagementConstants {
-  static mainColumns(localStrings: typeof strings) {
+  static mainColumns(
+    localStrings: typeof strings,
+    handleDownload?: (filename: string) => Promise<void>
+  ) {
     return Object.entries(localStrings.ArticleManagement.Labels)?.map(
       ([key, val]) => {
         if (key === "name") {
@@ -32,6 +35,36 @@ export class ArticleManagementConstants {
                 {text}
               </Tooltip>
             ),
+          };
+        }
+        if (key === "file") {
+          return {
+            title: val,
+            align: "center",
+            dataIndex: key,
+            key: `class-${key}`,
+            render: (text: string, record: ArticleManagementResponseModel) => {
+              if (!text) {
+                return <span>-</span>;
+              }
+              if (!handleDownload) {
+                return <span>{text}</span>;
+              }
+              return (
+                <Tooltip title="Click to download">
+                  <span
+                    onClick={() => handleDownload(text)}
+                    style={{
+                      color: "#1890ff",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    }}
+                  >
+                    {text}
+                  </span>
+                </Tooltip>
+              );
+            },
           };
         }
         return {

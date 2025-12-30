@@ -22,13 +22,6 @@ export class AuthenticationController {
   ) {
     try {
       const { password, username } = req.body;
-      const userInfo = await prisma.user.findUnique({
-        where: { username: username },
-      });
-      const checkingPass = await bcryptjs.compare(
-        password!,
-        userInfo?.password!
-      );
 
       if (!username || !password) {
         return res.status(400).json({
@@ -39,6 +32,25 @@ export class AuthenticationController {
           },
         });
       }
+
+      const userInfo = await prisma.user.findUnique({
+        where: { username: username },
+      });
+
+      if (!userInfo || !userInfo.password) {
+        return res.status(400).json({
+          error: {
+            code: 400,
+            message: "Username or password is incorrect",
+          },
+          message: "Login failed",
+        });
+      }
+
+      const checkingPass = await bcryptjs.compare(
+        password,
+        userInfo.password
+      );
 
       if (!checkingPass) {
         return res.status(400).json({
@@ -52,7 +64,7 @@ export class AuthenticationController {
 
       const token = await generateTokens(userInfo?.id as string, res);
       const userWithoutPassword = { ...userInfo };
-      delete userWithoutPassword.password;
+      delete (userWithoutPassword as unknown as { password?: string })?.password;
 
       return res.status(200).json({
         data: {
