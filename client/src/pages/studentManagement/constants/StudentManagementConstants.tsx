@@ -21,6 +21,14 @@ export class StudentManagementConstants {
     }
   }
 
+  static getGeneder = (localStrings: typeof strings, value: string) => {
+    if (value === "male") {
+      return localStrings.GlobalLabels.Male;
+    } else {
+      return localStrings.GlobalLabels.Female;
+    }
+  };
+
   static mainColumns(localStrings: typeof strings) {
     return Object.entries(localStrings.StudentManagement.Columns)?.map(
       ([key, val]) => {
@@ -39,6 +47,8 @@ export class StudentManagementConstants {
                 : localStrings.GlobalLabels.NoInfo
               : key === "debtor"
               ? this.getBoolean(localStrings, text)
+              : key === "gender"
+              ? this.getGeneder(localStrings, text)
               : !!text
               ? text
               : localStrings.GlobalLabels.NoInfo,
