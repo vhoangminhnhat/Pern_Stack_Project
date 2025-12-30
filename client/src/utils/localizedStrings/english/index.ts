@@ -690,7 +690,7 @@ export const engLocalizedStrings = {
       totalApproved: "Total approved",
       totalFailed: "Total failed",
       averageGrade: "Average grade",
-      unpassedCourses: "Unpassed courses",
+      unpassedCourses: "Unpassed courses currently",
     },
     Labels: {
       fullName: "Full Name",

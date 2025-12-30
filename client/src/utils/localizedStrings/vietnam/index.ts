@@ -704,7 +704,7 @@ export const VnLocalizedStrings = {
       totalApproved: "Tổng số môn học đã đăng ký",
       totalFailed: "Tổng số môn học không đạt",
       averageGrade: "Điểm trung bình",
-      unpassedCourses: "Số môn học không đạt",
+      unpassedCourses: "Số môn học không đạt hiện tại",
       highRisk: "Nguy cơ cao",
       lowRisk: "Nguy cơ thấp",
       riskRate: "Tỷ lệ rủi ro",
