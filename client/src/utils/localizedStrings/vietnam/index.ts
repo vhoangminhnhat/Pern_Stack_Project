@@ -672,9 +672,9 @@ export const VnLocalizedStrings = {
     CreateStudentFailed: "Tạo sinh viên thất bại",
     Columns: {
       fullName: "Họ tên",
-      gender: "Giới tính",
       studentId: "Mã sinh viên",
       birthDate: "Ngày sinh",
+      gender: "Giới tính",
       curricularUnits1stSemEnrolled: "Số môn học đăng ký",
       curricularUnits1stSemApproved: "Số môn học đã đăng ký",
       curricularUnits1stSemGrade: "Điểm trung bình",

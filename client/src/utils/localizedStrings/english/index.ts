@@ -677,9 +677,9 @@ export const engLocalizedStrings = {
     CreateStudentFailed: "Failed to create student",
     Columns: {
       fullName: "Full Name",
-      gender: "Gender",
       studentId: "Student ID",
       birthDate: "Birth Date",
+      gender: "Gender",
       curricularUnits1stSemEnrolled: "Curricular units 1st sem (enrolled)",
       curricularUnits1stSemApproved: "Curricular units 1st sem (approved)",
       curricularUnits1stSemGrade: "Curricular units 1st sem (grade)",
